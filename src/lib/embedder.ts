@@ -93,8 +93,9 @@ export class Embedder {
       const formId = container.getAttribute('data-if-id');
       const type = container.getAttribute('data-if-type') as IfType;
       const timeout = container.getAttribute('data-if-timeout');
-      const orientation =
-        (container.getAttribute('data-if-orientation') as IfOrientation) || IfOrientation.Vertical;
+      const orientation = container.getAttribute('data-if-orientation')
+        ? (container.getAttribute('data-if-orientation') as IfOrientation)
+        : undefined;
       const scriptHost = container.getAttribute('data-if-script') || DEFAULT_IFRAME_HOST;
 
       if (!formId) return;
@@ -126,7 +127,8 @@ export class Embedder {
     const wrapper = document.createElement('div');
     wrapper.style.width = width;
     wrapper.style.maxWidth = '100%';
-    const iframe = this.createIframe(formId, height, scriptHost);
+    wrapper.style.height = height;
+    const iframe = this.createIframe(formId, scriptHost);
     wrapper.appendChild(iframe);
     container.appendChild(wrapper);
   }
@@ -231,7 +233,8 @@ export class Embedder {
     const wrapper = document.createElement('div');
     wrapper.style.width = width;
     wrapper.style.maxWidth = '100%';
-    const iframe = this.createIframe(formId, height, scriptHost);
+    wrapper.style.height = height;
+    const iframe = this.createIframe(formId, scriptHost);
     wrapper.appendChild(closeButton);
     wrapper.appendChild(iframe);
 
@@ -239,9 +242,13 @@ export class Embedder {
 
     // Обработчики событий
     button.addEventListener('click', () => {
-      iframeContainer.style.display = 'block';
-      // Отключаем анимацию когда окно открыто
-      button.style.animation = 'none';
+      if (iframeContainer.style.display === 'block') {
+        iframeContainer.style.display = 'none';
+        button.style.animation = 'bounce 5s infinite';
+      } else {
+        iframeContainer.style.display = 'block';
+        button.style.animation = 'none';
+      }
     });
 
     closeButton.addEventListener('click', () => {
@@ -323,7 +330,8 @@ export class Embedder {
       const wrapper = document.createElement('div');
       wrapper.style.width = width;
       wrapper.style.maxWidth = '100%';
-      const iframe = this.createIframe(formId, height, scriptHost);
+      wrapper.style.height = height;
+      const iframe = this.createIframe(formId, scriptHost);
       wrapper.appendChild(closeButton);
       wrapper.appendChild(iframe);
       modalContent.appendChild(wrapper);
@@ -360,16 +368,15 @@ export class Embedder {
 
   private createIframe(
     formId: string,
-    height: string,
     scriptHost: string = DEFAULT_IFRAME_HOST,
   ): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
     iframe.src = `${scriptHost}/${formId}`;
     iframe.width = '100%';
-    iframe.height = height;
+    iframe.height = '100%';
     iframe.style.cssText = `
       width: 100%;
-      height: ${height};
+      height: 100%;
       border: none;
       display: block;
     `;

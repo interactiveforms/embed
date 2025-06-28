@@ -24,17 +24,17 @@ class u {
   initializeElement(t) {
     if (!t.hasAttribute("data-if-id") || t.hasAttribute("data-if-initialized"))
       return;
-    const i = t.getAttribute("data-if-id"), r = t.getAttribute("data-if-type"), e = t.getAttribute("data-if-timeout"), o = t.getAttribute("data-if-orientation") || "vertical", n = t.getAttribute("data-if-script") || l;
+    const i = t.getAttribute("data-if-id"), o = t.getAttribute("data-if-type"), n = t.getAttribute("data-if-timeout"), s = t.getAttribute("data-if-orientation") || "vertical", e = t.getAttribute("data-if-script") || l;
     if (i)
-      switch (t.setAttribute("data-if-initialized", "true"), r) {
+      switch (t.setAttribute("data-if-initialized", "true"), o) {
         case "page-body":
-          this.createPageBodyEmbed(i, t, o, n);
+          this.createPageBodyEmbed(i, t, s, e);
           break;
         case "float-button":
-          this.createFloatButtonEmbed(i, o, n);
+          this.createFloatButtonEmbed(i, s, e);
           break;
         case "pop-up":
-          this.createPopUpEmbed(i, e, o, n);
+          this.createPopUpEmbed(i, n, s, e);
           break;
       }
   }
@@ -48,32 +48,32 @@ class u {
   }
   processContainers() {
     this.containers.forEach((t) => {
-      const i = t.getAttribute("data-if-id"), r = t.getAttribute("data-if-type"), e = t.getAttribute("data-if-timeout"), o = t.getAttribute("data-if-orientation") || "vertical", n = t.getAttribute("data-if-script") || l;
+      const i = t.getAttribute("data-if-id"), o = t.getAttribute("data-if-type"), n = t.getAttribute("data-if-timeout"), s = t.getAttribute("data-if-orientation") ? t.getAttribute("data-if-orientation") : void 0, e = t.getAttribute("data-if-script") || l;
       if (i)
-        switch (t.setAttribute("data-if-initialized", "true"), r) {
+        switch (t.setAttribute("data-if-initialized", "true"), o) {
           case "page-body":
-            this.createPageBodyEmbed(i, t, o, n);
+            this.createPageBodyEmbed(i, t, s, e);
             break;
           case "float-button":
-            this.createFloatButtonEmbed(i, o, n);
+            this.createFloatButtonEmbed(i, s, e);
             break;
           case "pop-up":
-            this.createPopUpEmbed(i, e, o, n);
+            this.createPopUpEmbed(i, n, s, e);
             break;
         }
     });
   }
-  createPageBodyEmbed(t, i, r = "vertical", e = l) {
-    const { width: o, height: n } = this.getDimensionsByOrientation(r), a = document.createElement("div");
-    a.style.width = o, a.style.maxWidth = "100%";
-    const s = this.createIframe(t, n, e);
-    a.appendChild(s), i.appendChild(a);
+  createPageBodyEmbed(t, i, o = "vertical", n = l) {
+    const { width: s, height: e } = this.getDimensionsByOrientation(o), a = document.createElement("div");
+    a.style.width = s, a.style.maxWidth = "100%", a.style.height = e;
+    const r = this.createIframe(t, n);
+    a.appendChild(r), i.appendChild(a);
   }
-  createFloatButtonEmbed(t, i = "square", r = l) {
-    const e = document.createElement("button");
-    e.innerHTML = `
+  createFloatButtonEmbed(t, i = "square", o = l) {
+    const n = document.createElement("button");
+    n.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
-    `, e.style.cssText = `
+    `, n.style.cssText = `
       width: 54px;
       height: 54px;
       padding: 0;
@@ -88,8 +88,8 @@ class u {
       transition: all 0.3s ease;
       animation: bounce 5s infinite;
     `;
-    const o = document.createElement("style");
-    o.textContent = `
+    const s = document.createElement("style");
+    s.textContent = `
       @keyframes bounce {
         0%, 80%, 100% {
           transform: translateY(0);
@@ -101,13 +101,13 @@ class u {
           transform: translateY(-4px);
         }
       }
-    `, document.head.appendChild(o), e.addEventListener("mouseenter", () => {
-      e.style.transform = "translateY(-2px)", e.style.animation = "none";
-    }), e.addEventListener("mouseleave", () => {
-      e.style.transform = "translateY(0)", e.style.animation = "bounce 5s infinite";
+    `, document.head.appendChild(s), n.addEventListener("mouseenter", () => {
+      n.style.transform = "translateY(-2px)", n.style.animation = "none";
+    }), n.addEventListener("mouseleave", () => {
+      n.style.transform = "translateY(0)", n.style.animation = "bounce 5s infinite";
     });
-    const n = document.createElement("div");
-    n.style.cssText = `
+    const e = document.createElement("div");
+    e.style.cssText = `
       position: fixed;
       bottom: 80px;
       right: 20px;
@@ -141,20 +141,20 @@ class u {
     }), a.addEventListener("mouseleave", () => {
       a.style.background = "transparent";
     });
-    const { width: s, height: p } = this.getDimensionsByOrientation(i), d = document.createElement("div");
-    d.style.width = s, d.style.maxWidth = "100%";
-    const c = this.createIframe(t, p, r);
-    d.appendChild(a), d.appendChild(c), n.appendChild(d), e.addEventListener("click", () => {
-      n.style.display = "block", e.style.animation = "none";
+    const { width: r, height: h } = this.getDimensionsByOrientation(i), d = document.createElement("div");
+    d.style.width = r, d.style.maxWidth = "100%", d.style.height = h;
+    const c = this.createIframe(t, o);
+    d.appendChild(a), d.appendChild(c), e.appendChild(d), n.addEventListener("click", () => {
+      e.style.display === "block" ? (e.style.display = "none", n.style.animation = "bounce 5s infinite") : (e.style.display = "block", n.style.animation = "none");
     }), a.addEventListener("click", () => {
-      n.style.display = "none", e.style.animation = "bounce 5s infinite";
-    }), document.body.appendChild(e), document.body.appendChild(n);
+      e.style.display = "none", n.style.animation = "bounce 5s infinite";
+    }), document.body.appendChild(n), document.body.appendChild(e);
   }
-  createPopUpEmbed(t, i, r = "vertical", e = l) {
-    const o = i ? parseInt(i) * 1e3 : 3e3;
+  createPopUpEmbed(t, i, o = "vertical", n = l) {
+    const s = i ? parseInt(i) * 1e3 : 3e3;
     setTimeout(() => {
-      const n = document.createElement("div");
-      n.style.cssText = `
+      const e = document.createElement("div");
+      e.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
@@ -178,8 +178,8 @@ class u {
         max-width: 90vw;
         max-height: 90vh;
       `;
-      const s = document.createElement("button");
-      s.innerHTML = "&times;", s.style.cssText = `
+      const r = document.createElement("button");
+      r.innerHTML = "&times;", r.style.cssText = `
         position: absolute;
         top: 10px;
         right: 15px;
@@ -196,17 +196,17 @@ class u {
         justify-content: center;
         border-radius: 50%;
         transition: background-color 0.2s ease;
-      `, s.addEventListener("mouseenter", () => {
-        s.style.background = "#f0f0f0";
-      }), s.addEventListener("mouseleave", () => {
-        s.style.background = "transparent";
+      `, r.addEventListener("mouseenter", () => {
+        r.style.background = "#f0f0f0";
+      }), r.addEventListener("mouseleave", () => {
+        r.style.background = "transparent";
       });
-      const { width: p, height: d } = this.getDimensionsByOrientation(r), c = document.createElement("div");
-      c.style.width = p, c.style.maxWidth = "100%";
-      const m = this.createIframe(t, d, e);
-      c.appendChild(s), c.appendChild(m), a.appendChild(c);
-      const h = document.createElement("style");
-      h.textContent = `
+      const { width: h, height: d } = this.getDimensionsByOrientation(o), c = document.createElement("div");
+      c.style.width = h, c.style.maxWidth = "100%", c.style.height = d;
+      const m = this.createIframe(t, n);
+      c.appendChild(r), c.appendChild(m), a.appendChild(c);
+      const p = document.createElement("style");
+      p.textContent = `
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -215,21 +215,21 @@ class u {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `, document.head.appendChild(h), s.addEventListener("click", () => {
-        n.remove();
-      }), n.addEventListener("click", (f) => {
-        f.target === n && n.remove();
-      }), n.appendChild(a), document.body.appendChild(n);
-    }, o);
+      `, document.head.appendChild(p), r.addEventListener("click", () => {
+        e.remove();
+      }), e.addEventListener("click", (f) => {
+        f.target === e && e.remove();
+      }), e.appendChild(a), document.body.appendChild(e);
+    }, s);
   }
-  createIframe(t, i, r = l) {
-    const e = document.createElement("iframe");
-    return e.src = `${r}/${t}`, e.width = "100%", e.height = i, e.style.cssText = `
+  createIframe(t, i = l) {
+    const o = document.createElement("iframe");
+    return o.src = `${i}/${t}`, o.width = "100%", o.height = "100%", o.style.cssText = `
       width: 100%;
-      height: ${i};
+      height: 100%;
       border: none;
       display: block;
-    `, e;
+    `, o;
   }
   getDimensionsByOrientation(t) {
     switch (t) {
