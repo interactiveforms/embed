@@ -353,6 +353,7 @@ export class Embedder {
         }
       });
 
+      modal.appendChild(modalContent);
       document.body.appendChild(modal);
     }, timeoutMs);
   }
