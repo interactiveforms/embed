@@ -63,21 +63,6 @@ embedder.initializeElement(document.getElementById('my-widget'));
 - **UMD** — универсальный модуль (минифицирован)
 - **ESM** — для современных сборщиков и `<script type="module">` (минифицирован)
 
-## Разработка и сборка
-
-```bash
-npm run dev    # запуск dev-сервера
-npm run build  # сборка библиотеки (с минификацией)
-```
-
-## Линтинг и форматирование
-
-```bash
-npm run lint       # запуск eslint
-npx prettier . --check  # проверка форматирования
-npx prettier . --write  # автоформатирование
-```
-
 ---
 
 **MIT License**
