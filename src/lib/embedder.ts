@@ -9,7 +9,7 @@ export enum IfOrientation {
   Square = 'square',
 }
 
-const DEFAULT_FRAME_HOST = 'https://if-form-staging.up.railway.app';
+const DEFAULT_IFRAME_HOST = 'https://if-form-staging.up.railway.app';
 
 export class Embedder {
   private readonly containers: HTMLElement[] = [];
@@ -54,7 +54,7 @@ export class Embedder {
     const timeout = element.getAttribute('data-if-timeout');
     const orientation =
       (element.getAttribute('data-if-orientation') as IfOrientation) || IfOrientation.Vertical;
-    const scriptHost = element.getAttribute('data-if-script') || DEFAULT_FRAME_HOST;
+    const scriptHost = element.getAttribute('data-if-script') || DEFAULT_IFRAME_HOST;
 
     if (!formId) return;
 
@@ -95,7 +95,7 @@ export class Embedder {
       const timeout = container.getAttribute('data-if-timeout');
       const orientation =
         (container.getAttribute('data-if-orientation') as IfOrientation) || IfOrientation.Vertical;
-      const scriptHost = container.getAttribute('data-if-script') || DEFAULT_FRAME_HOST;
+      const scriptHost = container.getAttribute('data-if-script') || DEFAULT_IFRAME_HOST;
 
       if (!formId) return;
 
@@ -120,7 +120,7 @@ export class Embedder {
     formId: string,
     container: HTMLElement,
     orientation: IfOrientation = IfOrientation.Vertical,
-    scriptHost: string = DEFAULT_FRAME_HOST,
+    scriptHost: string = DEFAULT_IFRAME_HOST,
   ): void {
     const { width, height } = this.getDimensionsByOrientation(orientation);
     const wrapper = document.createElement('div');
@@ -133,7 +133,7 @@ export class Embedder {
   private createFloatButtonEmbed(
     formId: string,
     orientation: IfOrientation = IfOrientation.Square,
-    scriptHost: string = DEFAULT_FRAME_HOST,
+    scriptHost: string = DEFAULT_IFRAME_HOST,
   ): void {
     // Создаем кнопку
     const button = document.createElement('button');
@@ -256,7 +256,7 @@ export class Embedder {
     formId: string,
     timeout: string | null,
     orientation: IfOrientation = IfOrientation.Vertical,
-    scriptHost: string = DEFAULT_FRAME_HOST,
+    scriptHost: string = DEFAULT_IFRAME_HOST,
   ): void {
     const timeoutMs = timeout ? parseInt(timeout) * 1000 : 3000;
 
@@ -357,8 +357,9 @@ export class Embedder {
   private createIframe(
     formId: string,
     height: string,
-    scriptHost: string = DEFAULT_FRAME_HOST,
+    scriptHost: string = DEFAULT_IFRAME_HOST,
   ): HTMLIFrameElement {
+    console.log('scriptHost', scriptHost);
     const iframe = document.createElement('iframe');
     iframe.src = `${scriptHost}/${formId}`;
     iframe.width = '100%';

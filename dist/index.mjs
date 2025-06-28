@@ -223,6 +223,7 @@ class u {
     }, o);
   }
   createIframe(t, i, s = l) {
+    console.log("scriptHost", s);
     const e = document.createElement("iframe");
     return e.src = `${s}/${t}`, e.width = "100%", e.height = i, e.style.cssText = `
       width: 100%;
