@@ -67,7 +67,7 @@ class l {
     const { width: a, height: i } = this.getDimensionsByOrientation(n), o = this.createIframe(e, a, i);
     t.appendChild(o);
   }
-  createFloatButtonEmbed(t, e = "vertical") {
+  createFloatButtonEmbed(t, e = "square") {
     const n = document.createElement("button");
     n.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
@@ -139,7 +139,7 @@ class l {
     }), o.addEventListener("mouseleave", () => {
       o.style.background = "transparent";
     });
-    const { width: r, height: s } = this.getDimensionsByOrientation(e), d = this.createIframe(t, r, s);
+    const { width: s, height: r } = this.getDimensionsByOrientation(e), d = this.createIframe(t, s, r);
     i.appendChild(o), i.appendChild(d), n.addEventListener("click", () => {
       i.style.display = "block", n.style.animation = "none";
     }), o.addEventListener("click", () => {
@@ -174,8 +174,8 @@ class l {
         max-width: 90vw;
         max-height: 90vh;
       `;
-      const r = document.createElement("button");
-      r.innerHTML = "&times;", r.style.cssText = `
+      const s = document.createElement("button");
+      s.innerHTML = "&times;", s.style.cssText = `
         position: absolute;
         top: 10px;
         right: 15px;
@@ -192,13 +192,13 @@ class l {
         justify-content: center;
         border-radius: 50%;
         transition: background-color 0.2s ease;
-      `, r.addEventListener("mouseenter", () => {
-        r.style.background = "#f0f0f0";
-      }), r.addEventListener("mouseleave", () => {
-        r.style.background = "transparent";
+      `, s.addEventListener("mouseenter", () => {
+        s.style.background = "#f0f0f0";
+      }), s.addEventListener("mouseleave", () => {
+        s.style.background = "transparent";
       });
-      const { width: s, height: d } = this.getDimensionsByOrientation(n), h = this.createIframe(t, s, d);
-      o.appendChild(r), o.appendChild(h), i.appendChild(o);
+      const { width: r, height: d } = this.getDimensionsByOrientation(n), h = this.createIframe(t, r, d);
+      o.appendChild(s), o.appendChild(h), i.appendChild(o);
       const c = document.createElement("style");
       c.textContent = `
         @keyframes fadeIn {
@@ -209,7 +209,7 @@ class l {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `, document.head.appendChild(c), r.addEventListener("click", () => {
+      `, document.head.appendChild(c), s.addEventListener("click", () => {
         i.remove();
       }), i.addEventListener("click", (p) => {
         p.target === i && i.remove();
@@ -225,7 +225,13 @@ class l {
     `, a;
   }
   getDimensionsByOrientation(t) {
-    return t === "square" ? { width: "341px", height: "300px" } : { width: "614px", height: "300px" };
+    switch (t) {
+      case "square":
+        return { width: "341px", height: "300px" };
+      case "vertical":
+      default:
+        return { width: "614px", height: "300px" };
+    }
   }
 }
 (function() {

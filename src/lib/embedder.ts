@@ -127,7 +127,7 @@ export class Embedder {
 
   private createFloatButtonEmbed(
     ifId: string,
-    orientation: IfOrientation = IfOrientation.Vertical,
+    orientation: IfOrientation = IfOrientation.Square,
   ): void {
     // Создаем кнопку
     const button = document.createElement('button');
@@ -356,11 +356,16 @@ export class Embedder {
     return iframe;
   }
 
-  private getDimensionsByOrientation(orientation: string): { width: string; height: string } {
-    if (orientation === IfOrientation.Square) {
-      return { width: '341px', height: '300px' };
+  private getDimensionsByOrientation(orientation: IfOrientation): {
+    width: string;
+    height: string;
+  } {
+    switch (orientation) {
+      case IfOrientation.Square:
+        return { width: '341px', height: '300px' };
+      case IfOrientation.Vertical:
+      default:
+        return { width: '614px', height: '300px' };
     }
-    // vertical по умолчанию
-    return { width: '614px', height: '300px' };
   }
 }
