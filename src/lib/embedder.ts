@@ -9,8 +9,7 @@ export enum IfOrientation {
   Square = 'square',
 }
 
-const SCRIPT_HOST = 'https://if-form-staging.up.railway.app';
-// const SCRIPT_HOST = 'http://localhost:4200';
+const DEFAULT_FRAME_HOST = 'https://if-form-staging.up.railway.app';
 
 export class Embedder {
   private readonly containers: HTMLElement[] = [];
@@ -50,26 +49,27 @@ export class Embedder {
       return;
     }
 
-    const ifId = element.getAttribute('data-if-id');
+    const formId = element.getAttribute('data-if-id');
     const type = element.getAttribute('data-if-type') as IfType;
     const timeout = element.getAttribute('data-if-timeout');
     const orientation =
       (element.getAttribute('data-if-orientation') as IfOrientation) || IfOrientation.Vertical;
+    const scriptHost = element.getAttribute('data-if-script') || DEFAULT_FRAME_HOST;
 
-    if (!ifId) return;
+    if (!formId) return;
 
     // Помечаем элемент как инициализированный
     element.setAttribute('data-if-initialized', 'true');
 
     switch (type) {
       case IfType.PageBody:
-        this.createPageBodyEmbed(element, ifId, orientation);
+        this.createPageBodyEmbed(formId, element, orientation, scriptHost);
         break;
       case IfType.FloatButton:
-        this.createFloatButtonEmbed(ifId, orientation);
+        this.createFloatButtonEmbed(formId, orientation, scriptHost);
         break;
       case IfType.PopUp:
-        this.createPopUpEmbed(ifId, timeout, orientation);
+        this.createPopUpEmbed(formId, timeout, orientation, scriptHost);
         break;
     }
   }
@@ -90,47 +90,50 @@ export class Embedder {
 
   private processContainers(): void {
     this.containers.forEach((container) => {
-      const ifId = container.getAttribute('data-if-id');
+      const formId = container.getAttribute('data-if-id');
       const type = container.getAttribute('data-if-type') as IfType;
       const timeout = container.getAttribute('data-if-timeout');
       const orientation =
         (container.getAttribute('data-if-orientation') as IfOrientation) || IfOrientation.Vertical;
+      const scriptHost = container.getAttribute('data-if-script') || DEFAULT_FRAME_HOST;
 
-      if (!ifId) return;
+      if (!formId) return;
 
       // Помечаем элемент как инициализированный
       container.setAttribute('data-if-initialized', 'true');
 
       switch (type) {
         case IfType.PageBody:
-          this.createPageBodyEmbed(container, ifId, orientation);
+          this.createPageBodyEmbed(formId, container, orientation, scriptHost);
           break;
         case IfType.FloatButton:
-          this.createFloatButtonEmbed(ifId, orientation);
+          this.createFloatButtonEmbed(formId, orientation, scriptHost);
           break;
         case IfType.PopUp:
-          this.createPopUpEmbed(ifId, timeout, orientation);
+          this.createPopUpEmbed(formId, timeout, orientation, scriptHost);
           break;
       }
     });
   }
 
   private createPageBodyEmbed(
+    formId: string,
     container: HTMLElement,
-    ifId: string,
     orientation: IfOrientation = IfOrientation.Vertical,
+    scriptHost: string = DEFAULT_FRAME_HOST,
   ): void {
     const { width, height } = this.getDimensionsByOrientation(orientation);
     const wrapper = document.createElement('div');
     wrapper.style.width = width;
-    const iframe = this.createIframe(ifId, width, height);
+    const iframe = this.createIframe(formId, height, scriptHost);
     wrapper.appendChild(iframe);
     container.appendChild(wrapper);
   }
 
   private createFloatButtonEmbed(
-    ifId: string,
+    formId: string,
     orientation: IfOrientation = IfOrientation.Square,
+    scriptHost: string = DEFAULT_FRAME_HOST,
   ): void {
     // Создаем кнопку
     const button = document.createElement('button');
@@ -226,7 +229,7 @@ export class Embedder {
     const { width, height } = this.getDimensionsByOrientation(orientation);
     const wrapper = document.createElement('div');
     wrapper.style.width = width;
-    const iframe = this.createIframe(ifId, width, height);
+    const iframe = this.createIframe(formId, height, scriptHost);
     wrapper.appendChild(closeButton);
     wrapper.appendChild(iframe);
 
@@ -250,9 +253,10 @@ export class Embedder {
   }
 
   private createPopUpEmbed(
-    ifId: string,
+    formId: string,
     timeout: string | null,
     orientation: IfOrientation = IfOrientation.Vertical,
+    scriptHost: string = DEFAULT_FRAME_HOST,
   ): void {
     const timeoutMs = timeout ? parseInt(timeout) * 1000 : 3000;
 
@@ -316,7 +320,7 @@ export class Embedder {
       const { width, height } = this.getDimensionsByOrientation(orientation);
       const wrapper = document.createElement('div');
       wrapper.style.width = width;
-      const iframe = this.createIframe(ifId, width, height);
+      const iframe = this.createIframe(formId, height, scriptHost);
       wrapper.appendChild(closeButton);
       wrapper.appendChild(iframe);
       modalContent.appendChild(wrapper);
@@ -350,9 +354,13 @@ export class Embedder {
     }, timeoutMs);
   }
 
-  private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
+  private createIframe(
+    formId: string,
+    height: string,
+    scriptHost: string = DEFAULT_FRAME_HOST,
+  ): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
-    iframe.src = `${SCRIPT_HOST}/${ifId}`;
+    iframe.src = `${scriptHost}/${formId}`;
     iframe.width = '100%';
     iframe.height = height;
     iframe.style.cssText = `

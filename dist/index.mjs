@@ -1,5 +1,5 @@
-const m = "https://if-form-staging.up.railway.app";
-class h {
+const l = "https://if-form-staging.up.railway.app";
+class u {
   constructor() {
     this.containers = [], this.init();
   }
@@ -24,17 +24,17 @@ class h {
   initializeElement(t) {
     if (!t.hasAttribute("data-if-id") || t.hasAttribute("data-if-initialized"))
       return;
-    const i = t.getAttribute("data-if-id"), e = t.getAttribute("data-if-type"), a = t.getAttribute("data-if-timeout"), n = t.getAttribute("data-if-orientation") || "vertical";
+    const i = t.getAttribute("data-if-id"), s = t.getAttribute("data-if-type"), e = t.getAttribute("data-if-timeout"), o = t.getAttribute("data-if-orientation") || "vertical", n = t.getAttribute("data-if-script") || l;
     if (i)
-      switch (t.setAttribute("data-if-initialized", "true"), e) {
+      switch (t.setAttribute("data-if-initialized", "true"), s) {
         case "page-body":
-          this.createPageBodyEmbed(t, i, n);
+          this.createPageBodyEmbed(i, t, o, n);
           break;
         case "float-button":
-          this.createFloatButtonEmbed(i, n);
+          this.createFloatButtonEmbed(i, o, n);
           break;
         case "pop-up":
-          this.createPopUpEmbed(i, a, n);
+          this.createPopUpEmbed(i, e, o, n);
           break;
       }
   }
@@ -48,28 +48,28 @@ class h {
   }
   processContainers() {
     this.containers.forEach((t) => {
-      const i = t.getAttribute("data-if-id"), e = t.getAttribute("data-if-type"), a = t.getAttribute("data-if-timeout"), n = t.getAttribute("data-if-orientation") || "vertical";
+      const i = t.getAttribute("data-if-id"), s = t.getAttribute("data-if-type"), e = t.getAttribute("data-if-timeout"), o = t.getAttribute("data-if-orientation") || "vertical", n = t.getAttribute("data-if-script") || l;
       if (i)
-        switch (t.setAttribute("data-if-initialized", "true"), e) {
+        switch (t.setAttribute("data-if-initialized", "true"), s) {
           case "page-body":
-            this.createPageBodyEmbed(t, i, n);
+            this.createPageBodyEmbed(i, t, o, n);
             break;
           case "float-button":
-            this.createFloatButtonEmbed(i, n);
+            this.createFloatButtonEmbed(i, o, n);
             break;
           case "pop-up":
-            this.createPopUpEmbed(i, a, n);
+            this.createPopUpEmbed(i, e, o, n);
             break;
         }
     });
   }
-  createPageBodyEmbed(t, i, e = "vertical") {
-    const { width: a, height: n } = this.getDimensionsByOrientation(e), o = document.createElement("div");
-    o.style.width = a;
-    const r = this.createIframe(i, a, n);
-    o.appendChild(r), t.appendChild(o);
+  createPageBodyEmbed(t, i, s = "vertical", e = l) {
+    const { width: o, height: n } = this.getDimensionsByOrientation(s), a = document.createElement("div");
+    a.style.width = o;
+    const r = this.createIframe(t, n, e);
+    a.appendChild(r), i.appendChild(a);
   }
-  createFloatButtonEmbed(t, i = "square") {
+  createFloatButtonEmbed(t, i = "square", s = l) {
     const e = document.createElement("button");
     e.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
@@ -88,8 +88,8 @@ class h {
       transition: all 0.3s ease;
       animation: bounce 5s infinite;
     `;
-    const a = document.createElement("style");
-    a.textContent = `
+    const o = document.createElement("style");
+    o.textContent = `
       @keyframes bounce {
         0%, 80%, 100% {
           transform: translateY(0);
@@ -101,7 +101,7 @@ class h {
           transform: translateY(-4px);
         }
       }
-    `, document.head.appendChild(a), e.addEventListener("mouseenter", () => {
+    `, document.head.appendChild(o), e.addEventListener("mouseenter", () => {
       e.style.transform = "translateY(-2px)", e.style.animation = "none";
     }), e.addEventListener("mouseleave", () => {
       e.style.transform = "translateY(0)", e.style.animation = "bounce 5s infinite";
@@ -118,8 +118,8 @@ class h {
       padding: 12px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     `;
-    const o = document.createElement("button");
-    o.innerHTML = "&times;", o.style.cssText = `
+    const a = document.createElement("button");
+    a.innerHTML = "&times;", a.style.cssText = `
       position: absolute;
       top: 10px;
       right: 15px;
@@ -136,22 +136,22 @@ class h {
       justify-content: center;
       border-radius: 50%;
       transition: background-color 0.2s ease;
-    `, o.addEventListener("mouseenter", () => {
-      o.style.background = "#f0f0f0";
-    }), o.addEventListener("mouseleave", () => {
-      o.style.background = "transparent";
+    `, a.addEventListener("mouseenter", () => {
+      a.style.background = "#f0f0f0";
+    }), a.addEventListener("mouseleave", () => {
+      a.style.background = "transparent";
     });
-    const { width: r, height: c } = this.getDimensionsByOrientation(i), s = document.createElement("div");
-    s.style.width = r;
-    const d = this.createIframe(t, r, c);
-    s.appendChild(o), s.appendChild(d), n.appendChild(s), e.addEventListener("click", () => {
+    const { width: r, height: p } = this.getDimensionsByOrientation(i), d = document.createElement("div");
+    d.style.width = r;
+    const c = this.createIframe(t, p, s);
+    d.appendChild(a), d.appendChild(c), n.appendChild(d), e.addEventListener("click", () => {
       n.style.display = "block", e.style.animation = "none";
-    }), o.addEventListener("click", () => {
+    }), a.addEventListener("click", () => {
       n.style.display = "none", e.style.animation = "bounce 5s infinite";
     }), document.body.appendChild(e), document.body.appendChild(n);
   }
-  createPopUpEmbed(t, i, e = "vertical") {
-    const a = i ? parseInt(i) * 1e3 : 3e3;
+  createPopUpEmbed(t, i, s = "vertical", e = l) {
+    const o = i ? parseInt(i) * 1e3 : 3e3;
     setTimeout(() => {
       const n = document.createElement("div");
       n.style.cssText = `
@@ -167,8 +167,8 @@ class h {
         align-items: center;
         animation: fadeIn 0.3s ease;
       `;
-      const o = document.createElement("div");
-      o.style.cssText = `
+      const a = document.createElement("div");
+      a.style.cssText = `
         position: relative;
         background: white;
         border-radius: 12px;
@@ -201,12 +201,12 @@ class h {
       }), r.addEventListener("mouseleave", () => {
         r.style.background = "transparent";
       });
-      const { width: c, height: s } = this.getDimensionsByOrientation(e), d = document.createElement("div");
-      d.style.width = c;
-      const p = this.createIframe(t, c, s);
-      d.appendChild(r), d.appendChild(p), o.appendChild(d);
-      const l = document.createElement("style");
-      l.textContent = `
+      const { width: p, height: d } = this.getDimensionsByOrientation(s), c = document.createElement("div");
+      c.style.width = p;
+      const m = this.createIframe(t, d, e);
+      c.appendChild(r), c.appendChild(m), a.appendChild(c);
+      const h = document.createElement("style");
+      h.textContent = `
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -215,21 +215,21 @@ class h {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `, document.head.appendChild(l), r.addEventListener("click", () => {
+      `, document.head.appendChild(h), r.addEventListener("click", () => {
         n.remove();
-      }), n.addEventListener("click", (u) => {
-        u.target === n && n.remove();
+      }), n.addEventListener("click", (f) => {
+        f.target === n && n.remove();
       }), document.body.appendChild(n);
-    }, a);
+    }, o);
   }
-  createIframe(t, i, e) {
-    const a = document.createElement("iframe");
-    return a.src = `${m}/${t}`, a.width = "100%", a.height = e, a.style.cssText = `
+  createIframe(t, i, s = l) {
+    const e = document.createElement("iframe");
+    return e.src = `${s}/${t}`, e.width = "100%", e.height = i, e.style.cssText = `
       width: 100%;
-      height: ${e};
+      height: ${i};
       border: none;
       display: block;
-    `, a;
+    `, e;
   }
   getDimensionsByOrientation(t) {
     switch (t) {
@@ -243,9 +243,9 @@ class h {
 }
 (function() {
   typeof window < "u" && (document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => {
-    new h();
-  }) : new h());
+    new u();
+  }) : new u());
 })();
 export {
-  h as Embedder
+  u as Embedder
 };
