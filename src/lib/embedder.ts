@@ -121,8 +121,11 @@ export class Embedder {
     orientation: IfOrientation = IfOrientation.Vertical,
   ): void {
     const { width, height } = this.getDimensionsByOrientation(orientation);
+    const wrapper = document.createElement('div');
+    wrapper.style.width = width;
     const iframe = this.createIframe(ifId, width, height);
-    container.appendChild(iframe);
+    wrapper.appendChild(iframe);
+    container.appendChild(wrapper);
   }
 
   private createFloatButtonEmbed(
@@ -221,10 +224,13 @@ export class Embedder {
     });
 
     const { width, height } = this.getDimensionsByOrientation(orientation);
+    const wrapper = document.createElement('div');
+    wrapper.style.width = width;
     const iframe = this.createIframe(ifId, width, height);
+    wrapper.appendChild(closeButton);
+    wrapper.appendChild(iframe);
 
-    iframeContainer.appendChild(closeButton);
-    iframeContainer.appendChild(iframe);
+    iframeContainer.appendChild(wrapper);
 
     // Обработчики событий
     button.addEventListener('click', () => {
@@ -308,11 +314,12 @@ export class Embedder {
       });
 
       const { width, height } = this.getDimensionsByOrientation(orientation);
+      const wrapper = document.createElement('div');
+      wrapper.style.width = width;
       const iframe = this.createIframe(ifId, width, height);
-
-      modalContent.appendChild(closeButton);
-      modalContent.appendChild(iframe);
-      modal.appendChild(modalContent);
+      wrapper.appendChild(closeButton);
+      wrapper.appendChild(iframe);
+      modalContent.appendChild(wrapper);
 
       // Добавляем CSS анимации
       const style = document.createElement('style');
@@ -346,12 +353,13 @@ export class Embedder {
   private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
     iframe.src = `${SCRIPT_HOST}/${ifId}`;
-    iframe.width = width;
+    iframe.width = '100%';
     iframe.height = height;
     iframe.style.cssText = `
-      width: ${width};
+      width: 100%;
       height: ${height};
       border: none;
+      display: block;
     `;
     return iframe;
   }
