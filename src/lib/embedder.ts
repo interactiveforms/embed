@@ -125,6 +125,7 @@ export class Embedder {
     const { width, height } = this.getDimensionsByOrientation(orientation);
     const wrapper = document.createElement('div');
     wrapper.style.width = width;
+    wrapper.style.maxWidth = '100%';
     const iframe = this.createIframe(formId, height, scriptHost);
     wrapper.appendChild(iframe);
     container.appendChild(wrapper);
@@ -229,6 +230,7 @@ export class Embedder {
     const { width, height } = this.getDimensionsByOrientation(orientation);
     const wrapper = document.createElement('div');
     wrapper.style.width = width;
+    wrapper.style.maxWidth = '100%';
     const iframe = this.createIframe(formId, height, scriptHost);
     wrapper.appendChild(closeButton);
     wrapper.appendChild(iframe);
@@ -320,6 +322,7 @@ export class Embedder {
       const { width, height } = this.getDimensionsByOrientation(orientation);
       const wrapper = document.createElement('div');
       wrapper.style.width = width;
+      wrapper.style.maxWidth = '100%';
       const iframe = this.createIframe(formId, height, scriptHost);
       wrapper.appendChild(closeButton);
       wrapper.appendChild(iframe);
@@ -359,7 +362,6 @@ export class Embedder {
     height: string,
     scriptHost: string = DEFAULT_IFRAME_HOST,
   ): HTMLIFrameElement {
-    console.log('scriptHost', scriptHost);
     const iframe = document.createElement('iframe');
     iframe.src = `${scriptHost}/${formId}`;
     iframe.width = '100%';
@@ -379,10 +381,10 @@ export class Embedder {
   } {
     switch (orientation) {
       case IfOrientation.Square:
-        return { width: '341px', height: '300px' };
+        return { width: '341px', height: '314px' };
       case IfOrientation.Vertical:
       default:
-        return { width: '614px', height: '300px' };
+        return { width: '614px', height: '314px' };
     }
   }
 }
