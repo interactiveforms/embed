@@ -1,3 +1,12 @@
+export declare enum IfType {
+    PageBody = "page-body",
+    FloatButton = "float-button",
+    PopUp = "pop-up"
+}
+export declare enum IfOrientation {
+    Vertical = "vertical",
+    Square = "square"
+}
 export declare class Embedder {
     private readonly containers;
     constructor();
@@ -21,4 +30,5 @@ export declare class Embedder {
     private createFloatButtonEmbed;
     private createPopUpEmbed;
     private createIframe;
+    private getDimensionsByOrientation;
 }
