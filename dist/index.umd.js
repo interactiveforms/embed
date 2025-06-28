@@ -100,7 +100,7 @@
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `,document.head.appendChild(m),s.addEventListener("click",()=>{n.remove()}),n.addEventListener("click",b=>{b.target===n&&n.remove()}),document.body.appendChild(n)},o)}createIframe(t,i,r=d){const e=document.createElement("iframe");return e.src=`${r}/${t}`,e.width="100%",e.height=i,e.style.cssText=`
+      `,document.head.appendChild(m),s.addEventListener("click",()=>{n.remove()}),n.addEventListener("click",b=>{b.target===n&&n.remove()}),n.appendChild(a),document.body.appendChild(n)},o)}createIframe(t,i,r=d){const e=document.createElement("iframe");return e.src=`${r}/${t}`,e.width="100%",e.height=i,e.style.cssText=`
       width: 100%;
       height: ${i};
       border: none;

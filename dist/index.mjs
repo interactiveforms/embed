@@ -219,7 +219,7 @@ class u {
         n.remove();
       }), n.addEventListener("click", (f) => {
         f.target === n && n.remove();
-      }), document.body.appendChild(n);
+      }), n.appendChild(a), document.body.appendChild(n);
     }, o);
   }
   createIframe(t, i, r = l) {
