@@ -105,4 +105,4 @@ var InteractiveFormEmbedder=function(h){"use strict";const l="https://if-form-st
       height: 100%;
       border: none;
       display: block;
-    `,o}getDimensionsByOrientation(t){switch(t){case"square":return{width:"341px",height:"314px"};case"vertical":default:return{width:"614px",height:"314px"}}}}return function(){typeof window<"u"&&(document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>{new p}):new p)}(),h.Embedder=p,Object.defineProperty(h,Symbol.toStringTag,{value:"Module"}),h}({});
+    `,o}getDimensionsByOrientation(t){switch(t){case"square":return{width:"341px",height:"300px"};case"vertical":default:return{width:"640px",height:"300px"}}}}return function(){typeof window<"u"&&(document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>{new p}):new p)}(),h.Embedder=p,Object.defineProperty(h,Symbol.toStringTag,{value:"Module"}),h}({});

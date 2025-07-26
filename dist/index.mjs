@@ -234,10 +234,10 @@ class u {
   getDimensionsByOrientation(t) {
     switch (t) {
       case "square":
-        return { width: "341px", height: "314px" };
+        return { width: "341px", height: "300px" };
       case "vertical":
       default:
-        return { width: "614px", height: "314px" };
+        return { width: "640px", height: "300px" };
     }
   }
 }

@@ -105,4 +105,4 @@
       height: 100%;
       border: none;
       display: block;
-    `,o}getDimensionsByOrientation(t){switch(t){case"square":return{width:"341px",height:"314px"};case"vertical":default:return{width:"614px",height:"314px"}}}}(function(){typeof window<"u"&&(document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>{new p}):new p)})(),h.Embedder=p,Object.defineProperty(h,Symbol.toStringTag,{value:"Module"})});
+    `,o}getDimensionsByOrientation(t){switch(t){case"square":return{width:"341px",height:"300px"};case"vertical":default:return{width:"640px",height:"300px"}}}}(function(){typeof window<"u"&&(document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>{new p}):new p)})(),h.Embedder=p,Object.defineProperty(h,Symbol.toStringTag,{value:"Module"})});

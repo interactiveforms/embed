@@ -389,10 +389,10 @@ export class Embedder {
   } {
     switch (orientation) {
       case IfOrientation.Square:
-        return { width: '341px', height: '314px' };
+        return { width: '341px', height: '300px' };
       case IfOrientation.Vertical:
       default:
-        return { width: '614px', height: '314px' };
+        return { width: '640px', height: '300px' };
     }
   }
 }
