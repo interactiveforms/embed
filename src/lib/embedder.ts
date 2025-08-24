@@ -1,116 +1,194 @@
+export interface WidgetConfig {
+  id: string;
+  type: 'page-body' | 'float-button' | 'pop-up';
+  timeout?: number;
+  container?: HTMLElement;
+}
+
+// Global widget array (similar to dataLayer in GTM)
+declare global {
+  interface Window {
+    ifLayer: WidgetConfig[];
+  }
+}
+
+// Initialize global widget array if it doesn't exist
+if (typeof window !== 'undefined') {
+  window.ifLayer = window.ifLayer || [];
+}
+
 export class Embedder {
-  private readonly containers: HTMLElement[] = [];
+  private readonly widgets: Map<string, WidgetConfig> = new Map();
+  private static instance: Embedder | null = null;
 
-  constructor() {
-    this.init();
+  /**
+   * Creates a new Embedder instance with optional initial widget configuration
+   * @param config - Initial widget configuration (optional)
+   */
+  constructor(config?: WidgetConfig) {
+    if (config) {
+      this.addWidget(config);
+    }
+
+    // Process any widgets that were added to widgetLayer before initialization
+    this.processWidgetLayer();
   }
 
   /**
-   * Принудительная реинициализация всех элементов
+   * Gets or creates a singleton instance of Embedder
+   * @returns Embedder instance
    */
-  public reinitialize(): void {
-    // Очищаем атрибуты инициализации
-    this.clearInitializationFlags();
-    // Очищаем массив контейнеров
-    this.containers.length = 0;
-    // Запускаем инициализацию заново
-    this.init();
+  public static getInstance(): Embedder {
+    if (!Embedder.instance) {
+      Embedder.instance = new Embedder();
+    }
+    return Embedder.instance;
   }
 
   /**
-   * Очищает флаги инициализации со всех элементов
+   * Adds a new widget configuration to the embedder
+   * @param config - Widget configuration object
    */
-  private clearInitializationFlags(): void {
-    const initializedElements = document.querySelectorAll(
-      'div[data-if-initialized]',
-    );
-    initializedElements.forEach((element) => {
-      element.removeAttribute('data-if-initialized');
-    });
-  }
-
-  /**
-   * Инициализирует конкретный элемент
-   * @param element - HTML элемент для инициализации
-   */
-  public initializeElement(element: HTMLElement): void {
-    if (
-      !element.hasAttribute('data-if-id') ||
-      element.hasAttribute('data-if-initialized')
-    ) {
+  public addWidget(config: WidgetConfig): void {
+    const widgetKey = `${config.id}-${config.type}`;
+    if (this.widgets.has(widgetKey)) {
+      console.warn(`Widget with id ${config.id} and type ${config.type} already exists`);
       return;
     }
 
-    const ifId = element.getAttribute('data-if-id');
-    const type = element.getAttribute('data-if-type');
-    const timeout = element.getAttribute('data-if-timeout');
+    this.widgets.set(widgetKey, config);
+    this.initializeWidget(config);
+  }
 
-    if (!ifId) return;
+  /**
+   * Removes a widget by its ID and type
+   * @param id - Widget identifier
+   * @param type - Widget type
+   */
+  public removeWidget(id: string, type: string): void {
+    const widgetKey = `${id}-${type}`;
+    const widget = this.widgets.get(widgetKey);
+    if (widget) {
+      this.destroyWidget(widget);
+      this.widgets.delete(widgetKey);
+    }
+  }
 
-    // Помечаем элемент как инициализированный
-    element.setAttribute('data-if-initialized', 'true');
+  /**
+   * Forces reinitialization of all widgets
+   */
+  public reinitialize(): void {
+    this.widgets.forEach((widget) => {
+      this.destroyWidget(widget);
+    });
+    this.widgets.forEach((widget) => {
+      this.initializeWidget(widget);
+    });
+  }
 
-    switch (type) {
+  /**
+   * Creates a page-body widget at the current script location without requiring a container div
+   * This method can be called directly from a script tag to embed the widget inline
+   * @param ifId - The unique identifier for the interactive form
+   * @param width - The width of the iframe (default: '614px')
+   * @param height - The height of the iframe (default: '300px')
+   * @returns HTMLIFrameElement - The created iframe element
+   */
+  public static createInlineWidget(
+    ifId: string,
+    width: string = '614px',
+    height: string = '300px',
+  ): HTMLIFrameElement {
+    const iframe = document.createElement('iframe');
+    iframe.src = `http://localhost:4200/${ifId}`;
+    iframe.width = width;
+    iframe.height = height;
+    iframe.style.cssText = `
+      max-width: 100%;
+      width: ${width};
+      height: ${height};
+      border: none;
+    `;
+    iframe.setAttribute('data-widget-id', ifId);
+
+    const script = document.currentScript;
+    if (script && script.parentNode) {
+      script.parentNode.insertBefore(iframe, script);
+    } else {
+      document.body.appendChild(iframe);
+    }
+
+    return iframe;
+  }
+
+  /**
+   * Processes widgets from the global ifLayer array
+   * @private
+   */
+  private processWidgetLayer(): void {
+    if (typeof window !== 'undefined' && window.ifLayer && window.ifLayer.length > 0) {
+      const widgetsToProcess = [...window.ifLayer];
+      window.ifLayer = [];
+
+      widgetsToProcess.forEach((config) => {
+        this.addWidget(config);
+      });
+    }
+  }
+
+  /**
+   * Initializes a specific widget based on its configuration
+   * @param config - Widget configuration object
+   * @private
+   */
+  private initializeWidget(config: WidgetConfig): void {
+    switch (config.type) {
       case 'page-body':
-        this.createPageBodyEmbed(element, ifId);
+        this.createPageBodyEmbed(config);
         break;
       case 'float-button':
-        this.createFloatButtonEmbed(ifId);
+        this.createFloatButtonEmbed(config);
         break;
       case 'pop-up':
-        this.createPopUpEmbed(ifId, timeout);
+        this.createPopUpEmbed(config);
         break;
     }
   }
 
-  private init(): void {
-    this.findContainers();
-    this.processContainers();
-  }
-
-  private findContainers(): void {
-    const containers = document.querySelectorAll(
-      'div[data-if-id]:not([data-if-initialized])',
-    );
-    containers.forEach((container) => {
-      if (container instanceof HTMLElement) {
-        this.containers.push(container);
-      }
+  /**
+   * Destroys a widget and removes its DOM elements
+   * @param config - Widget configuration object
+   * @private
+   */
+  private destroyWidget(config: WidgetConfig): void {
+    const existingElements = document.querySelectorAll(`[data-widget-id="${config.id}"]`);
+    existingElements.forEach((element) => {
+      element.remove();
     });
   }
 
-  private processContainers(): void {
-    this.containers.forEach((container) => {
-      const ifId = container.getAttribute('data-if-id');
-      const type = container.getAttribute('data-if-type');
-      const timeout = container.getAttribute('data-if-timeout');
+  /**
+   * Creates a page-body type embed by inserting an iframe into the specified container
+   * @param config - Widget configuration object
+   * @private
+   */
+  private createPageBodyEmbed(config: WidgetConfig): void {
+    if (!config.container) {
+      console.error(`Container is required for page-body widget ${config.id}`);
+      return;
+    }
 
-      if (!ifId) return;
-
-      // Помечаем элемент как инициализированный
-      container.setAttribute('data-if-initialized', 'true');
-
-      switch (type) {
-        case 'page-body':
-          this.createPageBodyEmbed(container, ifId);
-          break;
-        case 'float-button':
-          this.createFloatButtonEmbed(ifId);
-          break;
-        case 'pop-up':
-          this.createPopUpEmbed(ifId, timeout);
-          break;
-      }
-    });
+    const iframe = this.createIframe(config.id, '614px', '300px');
+    iframe.setAttribute('data-widget-id', config.id);
+    config.container.appendChild(iframe);
   }
 
-  private createPageBodyEmbed(container: HTMLElement, ifId: string): void {
-    const iframe = this.createIframe(ifId, '614px', '300px');
-    container.appendChild(iframe);
-  }
-
-  private createFloatButtonEmbed(ifId: string): void {
-    // Создаем кнопку
+  /**
+   * Creates a floating button embed that appears as a fixed-position button
+   * @param config - Widget configuration object
+   * @private
+   */
+  private createFloatButtonEmbed(config: WidgetConfig): void {
     const button = document.createElement('button');
     button.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
@@ -128,25 +206,25 @@ export class Embedder {
       cursor: pointer;
       background-color: transparent;
       transition: all 0.3s ease;
-      animation: bounce 5s infinite;
+      animation: ifScale 5s infinite;
     `;
+    button.setAttribute('data-widget-id', config.id);
 
-    // Добавляем CSS анимацию bounce
-    const bounceStyle = document.createElement('style');
-    bounceStyle.textContent = `
-      @keyframes bounce {
+    const scaleStyle = document.createElement('style');
+    scaleStyle.textContent = `
+      @keyframes ifScale {
         0%, 80%, 100% {
-          transform: translateY(0);
+          transform: scale(1);
         }
         20% {
-          transform: translateY(-8px);
+          transform: scale(1.1);
         }
         40% {
-          transform: translateY(-4px);
+          transform: scale(1.05);
         }
       }
     `;
-    document.head.appendChild(bounceStyle);
+    document.head.appendChild(scaleStyle);
 
     button.addEventListener('mouseenter', () => {
       button.style.transform = 'translateY(-2px)';
@@ -154,15 +232,14 @@ export class Embedder {
     });
 
     button.addEventListener('mouseleave', () => {
-      button.style.transform = 'translateY(0)';
-      button.style.animation = 'bounce 5s infinite';
+      button.style.transform = 'scale(1)';
+      button.style.animation = 'ifScale 5s infinite';
     });
 
-    // Создаем контейнер для iframe
     const iframeContainer = document.createElement('div');
     iframeContainer.style.cssText = `
       position: fixed;
-      bottom: 80px;
+      bottom: 90px;
       right: 20px;
       z-index: 10001;
       display: none;
@@ -171,13 +248,14 @@ export class Embedder {
       padding: 12px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     `;
+    iframeContainer.setAttribute('data-widget-id', config.id);
 
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '&times;';
     closeButton.style.cssText = `
       position: absolute;
-      top: 10px;
-      right: 15px;
+      top: 5px;
+      right: 5px;
       background: none;
       border: none;
       font-size: 24px;
@@ -201,30 +279,32 @@ export class Embedder {
       closeButton.style.background = 'transparent';
     });
 
-    const iframe = this.createIframe(ifId, '341px', '300px');
+    const iframe = this.createIframe(config.id, '614px', '300px');
 
     iframeContainer.appendChild(closeButton);
     iframeContainer.appendChild(iframe);
 
-    // Обработчики событий
     button.addEventListener('click', () => {
       iframeContainer.style.display = 'block';
-      // Отключаем анимацию когда окно открыто
       button.style.animation = 'none';
     });
 
     closeButton.addEventListener('click', () => {
       iframeContainer.style.display = 'none';
-      // Включаем анимацию обратно когда окно закрыто
-      button.style.animation = 'bounce 5s infinite';
+      button.style.animation = 'ifScale 5s infinite';
     });
 
     document.body.appendChild(button);
     document.body.appendChild(iframeContainer);
   }
 
-  private createPopUpEmbed(ifId: string, timeout: string | null): void {
-    const timeoutMs = timeout ? parseInt(timeout) * 1000 : 3000;
+  /**
+   * Creates a popup modal embed that appears after a specified timeout
+   * @param config - Widget configuration object
+   * @private
+   */
+  private createPopUpEmbed(config: WidgetConfig): void {
+    const timeoutMs = config.timeout ? config.timeout * 1000 : 3000;
 
     setTimeout(() => {
       const modal = document.createElement('div');
@@ -241,6 +321,7 @@ export class Embedder {
         align-items: center;
         animation: fadeIn 0.3s ease;
       `;
+      modal.setAttribute('data-widget-id', config.id);
 
       const modalContent = document.createElement('div');
       modalContent.style.cssText = `
@@ -258,8 +339,8 @@ export class Embedder {
       closeButton.innerHTML = '&times;';
       closeButton.style.cssText = `
         position: absolute;
-        top: 10px;
-        right: 15px;
+        top: 5px;
+        right: 5px;
         background: none;
         border: none;
         font-size: 28px;
@@ -283,13 +364,12 @@ export class Embedder {
         closeButton.style.background = 'transparent';
       });
 
-      const iframe = this.createIframe(ifId, '614px', '300px');
+      const iframe = this.createIframe(config.id, '614px', '300px');
 
       modalContent.appendChild(closeButton);
       modalContent.appendChild(iframe);
       modal.appendChild(modalContent);
 
-      // Добавляем CSS анимации
       const style = document.createElement('style');
       style.textContent = `
         @keyframes fadeIn {
@@ -303,7 +383,6 @@ export class Embedder {
       `;
       document.head.appendChild(style);
 
-      // Обработчики событий
       closeButton.addEventListener('click', () => {
         modal.remove();
       });
@@ -318,17 +397,22 @@ export class Embedder {
     }, timeoutMs);
   }
 
-  private createIframe(
-    ifId: string,
-    width: string,
-    height: string,
-  ): HTMLIFrameElement {
+  /**
+   * Creates an iframe element with the specified dimensions and source URL
+   * @param ifId - The unique identifier for the interactive form
+   * @param width - The width of the iframe (CSS units supported)
+   * @param height - The height of the iframe (CSS units supported)
+   * @returns HTMLIFrameElement - The configured iframe element
+   * @private
+   */
+  private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
     // iframe.src = `https://if-form-staging.up.railway.app/${ifId}`;
     iframe.src = `http://localhost:4200/${ifId}`;
     iframe.width = width;
     iframe.height = height;
     iframe.style.cssText = `
+      max-width: 100%;
       width: ${width};
       height: ${height};
       border: none;
@@ -336,3 +420,48 @@ export class Embedder {
     return iframe;
   }
 }
+
+/*
+Usage Examples:
+
+1. Constructor with config:
+const embedder = new Embedder({
+  id: 'my-form',
+  type: 'page-body',
+  container: document.getElementById('form-container')
+});
+
+2. Multiple widgets with one instance:
+const embedder = new Embedder();
+embedder.addWidget({
+  id: 'my-form',
+  type: 'page-body',
+  container: document.getElementById('form-container')
+});
+embedder.addWidget({
+  id: 'my-form',
+  type: 'float-button'
+});
+
+3. Singleton pattern:
+const embedder = Embedder.getInstance();
+embedder.addWidget({...});
+
+4. Remove widget:
+embedder.removeWidget('my-form', 'float-button');
+
+5. Widget layer (like dataLayer in GTM):
+<script>
+  window.ifLayer = window.ifLayer || [];
+  window.ifLayer.push({
+    id: 'bbxli1zfm0cvbmv9jkx6hlpk',
+    type: 'pop-up',
+    timeout: 5
+  });
+</script>
+
+6. Inline widget without container:
+<script>
+  Embedder.createInlineWidget('my-form', '800px', '400px');
+</script>
+*/
