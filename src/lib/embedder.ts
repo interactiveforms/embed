@@ -2,7 +2,7 @@ export interface WidgetConfig {
   id: string;
   type: 'page-body' | 'float-button' | 'pop-up';
   timeout?: number;
-  container?: HTMLElement;
+  container?: string;
 }
 
 // Global widget array (similar to dataLayer in GTM)
@@ -178,9 +178,15 @@ export class Embedder {
       return;
     }
 
+    const containerElement = document.querySelector(config.container);
+    if (!containerElement) {
+      console.error(`Container element not found for selector: ${config.container}`);
+      return;
+    }
+
     const iframe = this.createIframe(config.id, '614px', '300px');
     iframe.setAttribute('data-widget-id', config.id);
-    config.container.appendChild(iframe);
+    containerElement.appendChild(iframe);
   }
 
   /**
@@ -428,7 +434,7 @@ Usage Examples:
 const embedder = new Embedder({
   id: 'my-form',
   type: 'page-body',
-  container: document.getElementById('form-container')
+  container: '#form-container'
 });
 
 2. Multiple widgets with one instance:
@@ -436,7 +442,7 @@ const embedder = new Embedder();
 embedder.addWidget({
   id: 'my-form',
   type: 'page-body',
-  container: document.getElementById('form-container')
+  container: '#form-container'
 });
 embedder.addWidget({
   id: 'my-form',
@@ -453,6 +459,15 @@ embedder.removeWidget('my-form', 'float-button');
 5. Widget layer (like dataLayer in GTM):
 <script>
   window.ifLayer = window.ifLayer || [];
+  window.ifLayer.push({
+    id: 'bbxli1zfm0cvbmv9jkx6hlpk',
+    type: 'page-body',
+    container: '#form-container'
+  });
+  window.ifLayer.push({
+    id: 'bbxli1zfm0cvbmv9jkx6hlpk',
+    type: 'float-button'
+  });
   window.ifLayer.push({
     id: 'bbxli1zfm0cvbmv9jkx6hlpk',
     type: 'pop-up',
