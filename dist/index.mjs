@@ -199,8 +199,8 @@ const a = class a {
     }), d.addEventListener("mouseleave", () => {
       d.style.background = "transparent";
     });
-    const s = this.createIframe(e.id, "614px", "300px");
-    i.appendChild(d), i.appendChild(s), t.addEventListener("click", () => {
+    const o = this.createIframe(e.id, "614px", "300px");
+    i.appendChild(d), i.appendChild(o), t.addEventListener("click", () => {
       i.style.display = "block", t.style.animation = "none";
     }), d.addEventListener("click", () => {
       i.style.display = "none", t.style.animation = "ifScale 5s infinite";
@@ -262,8 +262,8 @@ const a = class a {
       }), d.addEventListener("mouseleave", () => {
         d.style.background = "transparent";
       });
-      const s = this.createIframe(e.id, "614px", "300px");
-      i.appendChild(d), i.appendChild(s), n.appendChild(i);
+      const o = this.createIframe(e.id, "614px", "300px");
+      i.appendChild(d), i.appendChild(o), n.appendChild(i);
       const r = document.createElement("style");
       r.textContent = `
         @keyframes fadeIn {
@@ -291,7 +291,7 @@ const a = class a {
    */
   createIframe(e, t, n) {
     const i = document.createElement("iframe");
-    return i.src = `http://localhost:4200/${e}`, i.width = t, i.height = n, i.style.cssText = `
+    return i.src = `https://if-form-staging.up.railway.app/${e}`, i.width = t, i.height = n, i.style.cssText = `
       max-width: 100%;
       width: ${t};
       height: ${n};
@@ -300,12 +300,12 @@ const a = class a {
   }
 };
 a.instance = null;
-let o = a;
+let s = a;
 (function() {
   typeof window < "u" && (document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => {
-    new o();
-  }) : new o());
+    new s();
+  }) : new s());
 })();
 export {
-  o as Embedder
+  s as Embedder
 };
