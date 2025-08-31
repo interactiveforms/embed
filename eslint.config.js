@@ -1,13 +1,13 @@
-module.exports = {
+const config = {
   root: true,
   env: {
     browser: true,
-    es2021: true,
+    es2024: true,
     node: true,
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 2021,
+    ecmaVersion: 2024,
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'prettier'],
@@ -19,6 +19,7 @@ module.exports = {
   ],
   rules: {
     'prettier/prettier': 'error',
-    // Ваши правила
   },
 };
+
+export default config;

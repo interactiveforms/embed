@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 export interface WidgetConfig {
   id: string;
   type: 'page-body' | 'float-button' | 'pop-up';
@@ -5,14 +7,12 @@ export interface WidgetConfig {
   container?: string;
 }
 
-// Global widget array (similar to dataLayer in GTM)
 declare global {
   interface Window {
     ifLayer: WidgetConfig[];
   }
 }
 
-// Initialize global widget array if it doesn't exist
 if (typeof window !== 'undefined') {
   window.ifLayer = window.ifLayer || [];
 }
@@ -30,8 +30,9 @@ export class Embedder {
       this.addWidget(config);
     }
 
-    // Process any widgets that were added to widgetLayer before initialization
     this.processWidgetLayer();
+
+    this.initializeDataAttributeWidgets();
   }
 
   /**
@@ -50,14 +51,19 @@ export class Embedder {
    * @param config - Widget configuration object
    */
   public addWidget(config: WidgetConfig): void {
-    const widgetKey = `${config.id}-${config.type}`;
-    if (this.widgets.has(widgetKey)) {
-      console.warn(`Widget with id ${config.id} and type ${config.type} already exists`);
-      return;
+    if (config.type === 'page-body') {
+      const widgetKey = `${config.id}-${config.type}-${nanoid()}`;
+      this.widgets.set(widgetKey, config);
+      this.initializeWidget(config);
+    } else {
+      const widgetKey = `${config.id}-${config.type}`;
+      if (this.widgets.has(widgetKey)) {
+        console.warn(`Widget with id ${config.id} and type ${config.type} already exists`);
+        return;
+      }
+      this.widgets.set(widgetKey, config);
+      this.initializeWidget(config);
     }
-
-    this.widgets.set(widgetKey, config);
-    this.initializeWidget(config);
   }
 
   /**
@@ -66,11 +72,28 @@ export class Embedder {
    * @param type - Widget type
    */
   public removeWidget(id: string, type: string): void {
-    const widgetKey = `${id}-${type}`;
-    const widget = this.widgets.get(widgetKey);
-    if (widget) {
-      this.destroyWidget(widget);
-      this.widgets.delete(widgetKey);
+    if (type === 'page-body') {
+      const keysToRemove: string[] = [];
+      this.widgets.forEach((widget, key) => {
+        if (widget.id === id && widget.type === type) {
+          keysToRemove.push(key);
+        }
+      });
+
+      keysToRemove.forEach((key) => {
+        const widget = this.widgets.get(key);
+        if (widget) {
+          this.destroyWidget(widget);
+          this.widgets.delete(key);
+        }
+      });
+    } else {
+      const widgetKey = `${id}-${type}`;
+      const widget = this.widgets.get(widgetKey);
+      if (widget) {
+        this.destroyWidget(widget);
+        this.widgets.delete(widgetKey);
+      }
     }
   }
 
@@ -103,12 +126,10 @@ export class Embedder {
     iframe.src = `http://localhost:4200/${ifId}`;
     iframe.width = width;
     iframe.height = height;
-    iframe.style.cssText = `
-      max-width: 100%;
-      width: ${width};
-      height: ${height};
-      border: none;
-    `;
+    iframe.style.maxWidth = '100%';
+    iframe.style.width = width;
+    iframe.style.height = height;
+    iframe.style.border = 'none';
     iframe.setAttribute('data-widget-id', ifId);
 
     const script = document.currentScript;
@@ -178,15 +199,17 @@ export class Embedder {
       return;
     }
 
-    const containerElement = document.querySelector(config.container);
-    if (!containerElement) {
+    const containerElement = document.querySelectorAll(config.container);
+    if (containerElement.length === 0) {
       console.error(`Container element not found for selector: ${config.container}`);
       return;
     }
 
     const iframe = this.createIframe(config.id, '614px', '300px');
     iframe.setAttribute('data-widget-id', config.id);
-    containerElement.appendChild(iframe);
+    containerElement.forEach((element) => {
+      element.appendChild(iframe);
+    });
   }
 
   /**
@@ -199,21 +222,19 @@ export class Embedder {
     button.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
     `;
-    button.style.cssText = `
-      width: 54px;
-      height: 54px;
-      padding: 0;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 10000;
-      color: white;
-      border: none;
-      cursor: pointer;
-      background-color: transparent;
-      transition: all 0.3s ease;
-      animation: ifScale 5s infinite;
-    `;
+    button.style.width = '54px';
+    button.style.height = '54px';
+    button.style.padding = '0';
+    button.style.position = 'fixed';
+    button.style.bottom = '20px';
+    button.style.right = '20px';
+    button.style.zIndex = '10000';
+    button.style.color = 'white';
+    button.style.border = 'none';
+    button.style.cursor = 'pointer';
+    button.style.backgroundColor = 'transparent';
+    button.style.transition = 'all 0.3s ease';
+    button.style.animation = 'ifScale 5s infinite';
     button.setAttribute('data-widget-id', config.id);
 
     const scaleStyle = document.createElement('style');
@@ -243,39 +264,35 @@ export class Embedder {
     });
 
     const iframeContainer = document.createElement('div');
-    iframeContainer.style.cssText = `
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      z-index: 10001;
-      display: none;
-      background: white;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    `;
+    iframeContainer.style.position = 'fixed';
+    iframeContainer.style.bottom = '90px';
+    iframeContainer.style.right = '20px';
+    iframeContainer.style.zIndex = '10001';
+    iframeContainer.style.display = 'none';
+    iframeContainer.style.background = 'white';
+    iframeContainer.style.borderRadius = '8px';
+    iframeContainer.style.padding = '12px';
+    iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '&times;';
-    closeButton.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #666;
-      line-height: 1;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background-color 0.2s ease;
-    `;
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '5px';
+    closeButton.style.right = '5px';
+    closeButton.style.background = 'none';
+    closeButton.style.border = 'none';
+    closeButton.style.fontSize = '24px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.color = '#666';
+    closeButton.style.lineHeight = '1';
+    closeButton.style.width = '30px';
+    closeButton.style.height = '30px';
+    closeButton.style.display = 'flex';
+    closeButton.style.alignItems = 'center';
+    closeButton.style.justifyContent = 'center';
+    closeButton.style.borderRadius = '50%';
+    closeButton.style.transition = 'background-color 0.2s ease';
 
     closeButton.addEventListener('mouseenter', () => {
       closeButton.style.background = '#f0f0f0';
@@ -314,53 +331,47 @@ export class Embedder {
 
     setTimeout(() => {
       const modal = document.createElement('div');
-      modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 10002;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        animation: fadeIn 0.3s ease;
-      `;
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100%';
+      modal.style.height = '100%';
+      modal.style.background = 'rgba(0, 0, 0, 0.7)';
+      modal.style.zIndex = '10002';
+      modal.style.display = 'flex';
+      modal.style.justifyContent = 'center';
+      modal.style.alignItems = 'center';
+      modal.style.animation = 'fadeIn 0.3s ease';
       modal.setAttribute('data-widget-id', config.id);
 
       const modalContent = document.createElement('div');
-      modalContent.style.cssText = `
-        position: relative;
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        animation: slideIn 0.3s ease;
-        max-width: 90vw;
-        max-height: 90vh;
-      `;
+      modalContent.style.position = 'relative';
+      modalContent.style.background = 'white';
+      modalContent.style.borderRadius = '12px';
+      modalContent.style.padding = '20px';
+      modalContent.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.4)';
+      modalContent.style.animation = 'slideIn 0.3s ease';
+      modalContent.style.maxWidth = '90vw';
+      modalContent.style.maxHeight = '90vh';
 
       const closeButton = document.createElement('button');
       closeButton.innerHTML = '&times;';
-      closeButton.style.cssText = `
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: none;
-        border: none;
-        font-size: 28px;
-        cursor: pointer;
-        color: #666;
-        line-height: 1;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: background-color 0.2s ease;
-      `;
+      closeButton.style.position = 'absolute';
+      closeButton.style.top = '5px';
+      closeButton.style.right = '5px';
+      closeButton.style.background = 'none';
+      closeButton.style.border = 'none';
+      closeButton.style.fontSize = '28px';
+      closeButton.style.cursor = 'pointer';
+      closeButton.style.color = '#666';
+      closeButton.style.lineHeight = '1';
+      closeButton.style.width = '30px';
+      closeButton.style.height = '30px';
+      closeButton.style.display = 'flex';
+      closeButton.style.alignItems = 'center';
+      closeButton.style.justifyContent = 'center';
+      closeButton.style.borderRadius = '50%';
+      closeButton.style.transition = 'background-color 0.2s ease';
 
       closeButton.addEventListener('mouseenter', () => {
         closeButton.style.background = '#f0f0f0';
@@ -414,69 +425,58 @@ export class Embedder {
   private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
     iframe.src = `https://if-form-staging.up.railway.app/${ifId}`;
-    // iframe.src = `http://localhost:4200/${ifId}`;
     iframe.width = width;
     iframe.height = height;
-    iframe.style.cssText = `
-      max-width: 100%;
-      width: ${width};
-      height: ${height};
-      border: none;
-    `;
+    iframe.style.maxWidth = '100%';
+    iframe.style.width = width;
+    iframe.style.height = height;
+    iframe.style.border = 'none';
     return iframe;
   }
+
+  /**
+   * Initializes widgets from data attributes on the document body.
+   * This method looks for elements with data-if-* attributes and removes them after initialization.
+   * Works with any HTML elements including custom tags like <form-container>.
+   * @private
+   */
+  private initializeDataAttributeWidgets(): void {
+    const widgetsToInitialize = document.querySelectorAll('[data-if-id]');
+    widgetsToInitialize.forEach((element) => {
+      const widgetId = element.getAttribute('data-if-id');
+      if (widgetId) {
+        const widgetType = element.getAttribute('data-if-type');
+        const widgetTimeout = element.getAttribute('data-if-timeout');
+
+        let config: WidgetConfig;
+        if (widgetType === 'page-body') {
+          config = {
+            id: widgetId,
+            type: 'page-body',
+            container: `[data-if-id="${widgetId}"][data-if-type="page-body"]`,
+          };
+        } else if (widgetType === 'float-button') {
+          config = {
+            id: widgetId,
+            type: 'float-button',
+          };
+        } else if (widgetType === 'pop-up') {
+          config = {
+            id: widgetId,
+            type: 'pop-up',
+            timeout: Number(widgetTimeout || 10),
+          };
+        } else {
+          console.warn(`Unknown widget type for data-if-id: ${widgetId}`);
+          return;
+        }
+
+        this.addWidget(config);
+
+        element.removeAttribute('data-if-id');
+        element.removeAttribute('data-if-type');
+        element.removeAttribute('data-if-timeout');
+      }
+    });
+  }
 }
-
-/*
-Usage Examples:
-
-1. Constructor with config:
-const embedder = new Embedder({
-  id: 'my-form',
-  type: 'page-body',
-  container: '#form-container'
-});
-
-2. Multiple widgets with one instance:
-const embedder = new Embedder();
-embedder.addWidget({
-  id: 'my-form',
-  type: 'page-body',
-  container: '#form-container'
-});
-embedder.addWidget({
-  id: 'my-form',
-  type: 'float-button'
-});
-
-3. Singleton pattern:
-const embedder = Embedder.getInstance();
-embedder.addWidget({...});
-
-4. Remove widget:
-embedder.removeWidget('my-form', 'float-button');
-
-5. Widget layer (like dataLayer in GTM):
-<script>
-  window.ifLayer = window.ifLayer || [];
-  window.ifLayer.push({
-    id: 'bbxli1zfm0cvbmv9jkx6hlpk',
-    type: 'page-body',
-    container: '#form-container'
-  });
-  window.ifLayer.push({
-    id: 'bbxli1zfm0cvbmv9jkx6hlpk',
-    type: 'float-button'
-  });
-  window.ifLayer.push({
-    id: 'bbxli1zfm0cvbmv9jkx6hlpk',
-    type: 'pop-up',
-    timeout: 5
-  });
-</script>
-
-6. Inline widget without container:
-<script>
-  Embedder.createInlineWidget('my-form', '800px', '400px');
-</script>
-*/

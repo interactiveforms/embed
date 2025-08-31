@@ -1,11 +1,18 @@
+const c = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
+let p = (r = 21) => {
+  let s = "", i = crypto.getRandomValues(new Uint8Array(r |= 0));
+  for (; r--; )
+    s += c[i[r] & 63];
+  return s;
+};
 typeof window < "u" && (window.ifLayer = window.ifLayer || []);
 const a = class a {
   /**
    * Creates a new Embedder instance with optional initial widget configuration
    * @param config - Initial widget configuration (optional)
    */
-  constructor(e) {
-    this.widgets = /* @__PURE__ */ new Map(), e && this.addWidget(e), this.processWidgetLayer();
+  constructor(s) {
+    this.widgets = /* @__PURE__ */ new Map(), s && this.addWidget(s), this.processWidgetLayer(), this.initializeDataAttributeWidgets();
   }
   /**
    * Gets or creates a singleton instance of Embedder
@@ -18,31 +25,46 @@ const a = class a {
    * Adds a new widget configuration to the embedder
    * @param config - Widget configuration object
    */
-  addWidget(e) {
-    const t = `${e.id}-${e.type}`;
-    if (this.widgets.has(t)) {
-      console.warn(`Widget with id ${e.id} and type ${e.type} already exists`);
-      return;
+  addWidget(s) {
+    if (s.type === "page-body") {
+      const i = `${s.id}-${s.type}-${p()}`;
+      this.widgets.set(i, s), this.initializeWidget(s);
+    } else {
+      const i = `${s.id}-${s.type}`;
+      if (this.widgets.has(i)) {
+        console.warn(`Widget with id ${s.id} and type ${s.type} already exists`);
+        return;
+      }
+      this.widgets.set(i, s), this.initializeWidget(s);
     }
-    this.widgets.set(t, e), this.initializeWidget(e);
   }
   /**
    * Removes a widget by its ID and type
    * @param id - Widget identifier
    * @param type - Widget type
    */
-  removeWidget(e, t) {
-    const n = `${e}-${t}`, i = this.widgets.get(n);
-    i && (this.destroyWidget(i), this.widgets.delete(n));
+  removeWidget(s, i) {
+    if (i === "page-body") {
+      const n = [];
+      this.widgets.forEach((e, t) => {
+        e.id === s && e.type === i && n.push(t);
+      }), n.forEach((e) => {
+        const t = this.widgets.get(e);
+        t && (this.destroyWidget(t), this.widgets.delete(e));
+      });
+    } else {
+      const n = `${s}-${i}`, e = this.widgets.get(n);
+      e && (this.destroyWidget(e), this.widgets.delete(n));
+    }
   }
   /**
    * Forces reinitialization of all widgets
    */
   reinitialize() {
-    this.widgets.forEach((e) => {
-      this.destroyWidget(e);
-    }), this.widgets.forEach((e) => {
-      this.initializeWidget(e);
+    this.widgets.forEach((s) => {
+      this.destroyWidget(s);
+    }), this.widgets.forEach((s) => {
+      this.initializeWidget(s);
     });
   }
   /**
@@ -53,16 +75,11 @@ const a = class a {
    * @param height - The height of the iframe (default: '300px')
    * @returns HTMLIFrameElement - The created iframe element
    */
-  static createInlineWidget(e, t = "614px", n = "300px") {
-    const i = document.createElement("iframe");
-    i.src = `http://localhost:4200/${e}`, i.width = t, i.height = n, i.style.cssText = `
-      max-width: 100%;
-      width: ${t};
-      height: ${n};
-      border: none;
-    `, i.setAttribute("data-widget-id", e);
-    const d = document.currentScript;
-    return d && d.parentNode ? d.parentNode.insertBefore(i, d) : document.body.appendChild(i), i;
+  static createInlineWidget(s, i = "614px", n = "300px") {
+    const e = document.createElement("iframe");
+    e.src = `http://localhost:4200/${s}`, e.width = i, e.height = n, e.style.maxWidth = "100%", e.style.width = i, e.style.height = n, e.style.border = "none", e.setAttribute("data-widget-id", s);
+    const t = document.currentScript;
+    return t && t.parentNode ? t.parentNode.insertBefore(e, t) : document.body.appendChild(e), e;
   }
   /**
    * Processes widgets from the global ifLayer array
@@ -70,9 +87,9 @@ const a = class a {
    */
   processWidgetLayer() {
     if (typeof window < "u" && window.ifLayer && window.ifLayer.length > 0) {
-      const e = [...window.ifLayer];
-      window.ifLayer = [], e.forEach((t) => {
-        this.addWidget(t);
+      const s = [...window.ifLayer];
+      window.ifLayer = [], s.forEach((i) => {
+        this.addWidget(i);
       });
     }
   }
@@ -81,16 +98,16 @@ const a = class a {
    * @param config - Widget configuration object
    * @private
    */
-  initializeWidget(e) {
-    switch (e.type) {
+  initializeWidget(s) {
+    switch (s.type) {
       case "page-body":
-        this.createPageBodyEmbed(e);
+        this.createPageBodyEmbed(s);
         break;
       case "float-button":
-        this.createFloatButtonEmbed(e);
+        this.createFloatButtonEmbed(s);
         break;
       case "pop-up":
-        this.createPopUpEmbed(e);
+        this.createPopUpEmbed(s);
         break;
     }
   }
@@ -99,8 +116,8 @@ const a = class a {
    * @param config - Widget configuration object
    * @private
    */
-  destroyWidget(e) {
-    document.querySelectorAll(`[data-widget-id="${e.id}"]`).forEach((n) => {
+  destroyWidget(s) {
+    document.querySelectorAll(`[data-widget-id="${s.id}"]`).forEach((n) => {
       n.remove();
     });
   }
@@ -109,43 +126,31 @@ const a = class a {
    * @param config - Widget configuration object
    * @private
    */
-  createPageBodyEmbed(e) {
-    if (!e.container) {
-      console.error(`Container is required for page-body widget ${e.id}`);
+  createPageBodyEmbed(s) {
+    if (!s.container) {
+      console.error(`Container is required for page-body widget ${s.id}`);
       return;
     }
-    const t = document.querySelector(e.container);
-    if (!t) {
-      console.error(`Container element not found for selector: ${e.container}`);
+    const i = document.querySelectorAll(s.container);
+    if (i.length === 0) {
+      console.error(`Container element not found for selector: ${s.container}`);
       return;
     }
-    const n = this.createIframe(e.id, "614px", "300px");
-    n.setAttribute("data-widget-id", e.id), t.appendChild(n);
+    const n = this.createIframe(s.id, "614px", "300px");
+    n.setAttribute("data-widget-id", s.id), i.forEach((e) => {
+      e.appendChild(n);
+    });
   }
   /**
    * Creates a floating button embed that appears as a fixed-position button
    * @param config - Widget configuration object
    * @private
    */
-  createFloatButtonEmbed(e) {
-    const t = document.createElement("button");
-    t.innerHTML = `
+  createFloatButtonEmbed(s) {
+    const i = document.createElement("button");
+    i.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
-    `, t.style.cssText = `
-      width: 54px;
-      height: 54px;
-      padding: 0;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 10000;
-      color: white;
-      border: none;
-      cursor: pointer;
-      background-color: transparent;
-      transition: all 0.3s ease;
-      animation: ifScale 5s infinite;
-    `, t.setAttribute("data-widget-id", e.id);
+    `, i.style.width = "54px", i.style.height = "54px", i.style.padding = "0", i.style.position = "fixed", i.style.bottom = "20px", i.style.right = "20px", i.style.zIndex = "10000", i.style.color = "white", i.style.border = "none", i.style.cursor = "pointer", i.style.backgroundColor = "transparent", i.style.transition = "all 0.3s ease", i.style.animation = "ifScale 5s infinite", i.setAttribute("data-widget-id", s.id);
     const n = document.createElement("style");
     n.textContent = `
       @keyframes ifScale {
@@ -159,113 +164,48 @@ const a = class a {
           transform: scale(1.05);
         }
       }
-    `, document.head.appendChild(n), t.addEventListener("mouseenter", () => {
-      t.style.transform = "translateY(-2px)", t.style.animation = "none";
+    `, document.head.appendChild(n), i.addEventListener("mouseenter", () => {
+      i.style.transform = "translateY(-2px)", i.style.animation = "none";
+    }), i.addEventListener("mouseleave", () => {
+      i.style.transform = "scale(1)", i.style.animation = "ifScale 5s infinite";
+    });
+    const e = document.createElement("div");
+    e.style.position = "fixed", e.style.bottom = "90px", e.style.right = "20px", e.style.zIndex = "10001", e.style.display = "none", e.style.background = "white", e.style.borderRadius = "8px", e.style.padding = "12px", e.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.3)", e.setAttribute("data-widget-id", s.id);
+    const t = document.createElement("button");
+    t.innerHTML = "&times;", t.style.position = "absolute", t.style.top = "5px", t.style.right = "5px", t.style.background = "none", t.style.border = "none", t.style.fontSize = "24px", t.style.cursor = "pointer", t.style.color = "#666", t.style.lineHeight = "1", t.style.width = "30px", t.style.height = "30px", t.style.display = "flex", t.style.alignItems = "center", t.style.justifyContent = "center", t.style.borderRadius = "50%", t.style.transition = "background-color 0.2s ease", t.addEventListener("mouseenter", () => {
+      t.style.background = "#f0f0f0";
     }), t.addEventListener("mouseleave", () => {
-      t.style.transform = "scale(1)", t.style.animation = "ifScale 5s infinite";
+      t.style.background = "transparent";
     });
-    const i = document.createElement("div");
-    i.style.cssText = `
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      z-index: 10001;
-      display: none;
-      background: white;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    `, i.setAttribute("data-widget-id", e.id);
-    const d = document.createElement("button");
-    d.innerHTML = "&times;", d.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #666;
-      line-height: 1;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background-color 0.2s ease;
-    `, d.addEventListener("mouseenter", () => {
-      d.style.background = "#f0f0f0";
-    }), d.addEventListener("mouseleave", () => {
-      d.style.background = "transparent";
-    });
-    const o = this.createIframe(e.id, "614px", "300px");
-    i.appendChild(d), i.appendChild(o), t.addEventListener("click", () => {
-      i.style.display = "block", t.style.animation = "none";
-    }), d.addEventListener("click", () => {
-      i.style.display = "none", t.style.animation = "ifScale 5s infinite";
-    }), document.body.appendChild(t), document.body.appendChild(i);
+    const d = this.createIframe(s.id, "614px", "300px");
+    e.appendChild(t), e.appendChild(d), i.addEventListener("click", () => {
+      e.style.display = "block", i.style.animation = "none";
+    }), t.addEventListener("click", () => {
+      e.style.display = "none", i.style.animation = "ifScale 5s infinite";
+    }), document.body.appendChild(i), document.body.appendChild(e);
   }
   /**
    * Creates a popup modal embed that appears after a specified timeout
    * @param config - Widget configuration object
    * @private
    */
-  createPopUpEmbed(e) {
-    const t = e.timeout ? e.timeout * 1e3 : 3e3;
+  createPopUpEmbed(s) {
+    const i = s.timeout ? s.timeout * 1e3 : 3e3;
     setTimeout(() => {
       const n = document.createElement("div");
-      n.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 10002;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        animation: fadeIn 0.3s ease;
-      `, n.setAttribute("data-widget-id", e.id);
-      const i = document.createElement("div");
-      i.style.cssText = `
-        position: relative;
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        animation: slideIn 0.3s ease;
-        max-width: 90vw;
-        max-height: 90vh;
-      `;
-      const d = document.createElement("button");
-      d.innerHTML = "&times;", d.style.cssText = `
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: none;
-        border: none;
-        font-size: 28px;
-        cursor: pointer;
-        color: #666;
-        line-height: 1;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: background-color 0.2s ease;
-      `, d.addEventListener("mouseenter", () => {
-        d.style.background = "#f0f0f0";
-      }), d.addEventListener("mouseleave", () => {
-        d.style.background = "transparent";
+      n.style.position = "fixed", n.style.top = "0", n.style.left = "0", n.style.width = "100%", n.style.height = "100%", n.style.background = "rgba(0, 0, 0, 0.7)", n.style.zIndex = "10002", n.style.display = "flex", n.style.justifyContent = "center", n.style.alignItems = "center", n.style.animation = "fadeIn 0.3s ease", n.setAttribute("data-widget-id", s.id);
+      const e = document.createElement("div");
+      e.style.position = "relative", e.style.background = "white", e.style.borderRadius = "12px", e.style.padding = "20px", e.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.4)", e.style.animation = "slideIn 0.3s ease", e.style.maxWidth = "90vw", e.style.maxHeight = "90vh";
+      const t = document.createElement("button");
+      t.innerHTML = "&times;", t.style.position = "absolute", t.style.top = "5px", t.style.right = "5px", t.style.background = "none", t.style.border = "none", t.style.fontSize = "28px", t.style.cursor = "pointer", t.style.color = "#666", t.style.lineHeight = "1", t.style.width = "30px", t.style.height = "30px", t.style.display = "flex", t.style.alignItems = "center", t.style.justifyContent = "center", t.style.borderRadius = "50%", t.style.transition = "background-color 0.2s ease", t.addEventListener("mouseenter", () => {
+        t.style.background = "#f0f0f0";
+      }), t.addEventListener("mouseleave", () => {
+        t.style.background = "transparent";
       });
-      const o = this.createIframe(e.id, "614px", "300px");
-      i.appendChild(d), i.appendChild(o), n.appendChild(i);
-      const r = document.createElement("style");
-      r.textContent = `
+      const d = this.createIframe(s.id, "614px", "300px");
+      e.appendChild(t), e.appendChild(d), n.appendChild(e);
+      const l = document.createElement("style");
+      l.textContent = `
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -274,12 +214,12 @@ const a = class a {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `, document.head.appendChild(r), d.addEventListener("click", () => {
+      `, document.head.appendChild(l), t.addEventListener("click", () => {
         n.remove();
-      }), n.addEventListener("click", (c) => {
-        c.target === n && n.remove();
+      }), n.addEventListener("click", (y) => {
+        y.target === n && n.remove();
       }), document.body.appendChild(n);
-    }, t);
+    }, i);
   }
   /**
    * Creates an iframe element with the specified dimensions and source URL
@@ -289,23 +229,55 @@ const a = class a {
    * @returns HTMLIFrameElement - The configured iframe element
    * @private
    */
-  createIframe(e, t, n) {
-    const i = document.createElement("iframe");
-    return i.src = `https://if-form-staging.up.railway.app/${e}`, i.width = t, i.height = n, i.style.cssText = `
-      max-width: 100%;
-      width: ${t};
-      height: ${n};
-      border: none;
-    `, i;
+  createIframe(s, i, n) {
+    const e = document.createElement("iframe");
+    return e.src = `https://if-form-staging.up.railway.app/${s}`, e.width = i, e.height = n, e.style.maxWidth = "100%", e.style.width = i, e.style.height = n, e.style.border = "none", e;
+  }
+  /**
+   * Initializes widgets from data attributes on the document body.
+   * This method looks for elements with data-if-* attributes and removes them after initialization.
+   * Works with any HTML elements including custom tags like <form-container>.
+   * @private
+   */
+  initializeDataAttributeWidgets() {
+    document.querySelectorAll("[data-if-id]").forEach((i) => {
+      const n = i.getAttribute("data-if-id");
+      if (n) {
+        const e = i.getAttribute("data-if-type"), t = i.getAttribute("data-if-timeout");
+        let d;
+        if (e === "page-body")
+          d = {
+            id: n,
+            type: "page-body",
+            container: `[data-if-id="${n}"][data-if-type="page-body"]`
+          };
+        else if (e === "float-button")
+          d = {
+            id: n,
+            type: "float-button"
+          };
+        else if (e === "pop-up")
+          d = {
+            id: n,
+            type: "pop-up",
+            timeout: Number(t || 10)
+          };
+        else {
+          console.warn(`Unknown widget type for data-if-id: ${n}`);
+          return;
+        }
+        this.addWidget(d), i.removeAttribute("data-if-id"), i.removeAttribute("data-if-type"), i.removeAttribute("data-if-timeout");
+      }
+    });
   }
 };
 a.instance = null;
-let s = a;
+let o = a;
 (function() {
   typeof window < "u" && (document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => {
-    new s();
-  }) : new s());
+    new o();
+  }) : new o());
 })();
 export {
-  s as Embedder
+  o as Embedder
 };

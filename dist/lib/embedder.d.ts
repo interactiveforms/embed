@@ -90,4 +90,11 @@ export declare class Embedder {
      * @private
      */
     private createIframe;
+    /**
+     * Initializes widgets from data attributes on the document body.
+     * This method looks for elements with data-if-* attributes and removes them after initialization.
+     * Works with any HTML elements including custom tags like <form-container>.
+     * @private
+     */
+    private initializeDataAttributeWidgets;
 }
