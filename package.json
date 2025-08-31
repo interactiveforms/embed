@@ -1,6 +1,6 @@
 {
   "name": "interactiveform-embedder",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "packageManager": "pnpm@10.15.0",
   "engines": {
     "node": ">=22",
