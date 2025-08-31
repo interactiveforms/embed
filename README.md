@@ -77,7 +77,7 @@ The library also automatically processes widgets from `window.ifLayer`:
   window.ifLayer.push({
     id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
     type: 'pop-up',
-    timeout: 5,
+    timeout: 10,
   });
 </script>
 ```
@@ -112,7 +112,7 @@ embedder.addWidget({
 embedder.addWidget({
   id: 'my-form',
   type: 'pop-up',
-  timeout: 5,
+  timeout: 10,
 });
 
 // Remove widget
@@ -218,7 +218,3 @@ embedder.addWidget({
   Embedder.createInlineWidget('xxxxxxxxxxxxxxxxxxxxxxxx', '800px', '400px');
 </script>
 ```
-
----
-
-**MIT License**
