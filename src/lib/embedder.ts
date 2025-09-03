@@ -408,7 +408,7 @@ export class Embedder {
       modal.style.display = 'flex';
       modal.style.justifyContent = 'center';
       modal.style.alignItems = 'center';
-      modal.style.animation = 'fadeIn 0.3s ease';
+      modal.style.animation = 'ifFadeIn 0.3s ease';
       modal.setAttribute('data-widget-id', config.id);
 
       const modalContent = document.createElement('div');
@@ -417,7 +417,7 @@ export class Embedder {
       modalContent.style.borderRadius = '12px';
       modalContent.style.padding = '20px';
       modalContent.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.4)';
-      modalContent.style.animation = 'slideIn 0.3s ease';
+      modalContent.style.animation = 'ifSlideIn 0.3s ease';
       modalContent.style.maxWidth = '90vw';
       modalContent.style.maxHeight = '90vh';
 
@@ -456,11 +456,11 @@ export class Embedder {
 
       const style = document.createElement('style');
       style.textContent = `
-        @keyframes fadeIn {
+        @keyframes ifFadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes slideIn {
+        @keyframes ifSlideIn {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }

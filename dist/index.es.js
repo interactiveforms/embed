@@ -302,9 +302,9 @@ const l = class l {
     const i = t.timeout ? t.timeout * 1e3 : 3e3;
     setTimeout(() => {
       const s = document.createElement("div");
-      s.style.position = "fixed", s.style.top = "0", s.style.left = "0", s.style.width = "100%", s.style.height = "100%", s.style.background = "rgba(0, 0, 0, 0.7)", s.style.zIndex = "10002", s.style.display = "flex", s.style.justifyContent = "center", s.style.alignItems = "center", s.style.animation = "fadeIn 0.3s ease", s.setAttribute("data-widget-id", t.id);
+      s.style.position = "fixed", s.style.top = "0", s.style.left = "0", s.style.width = "100%", s.style.height = "100%", s.style.background = "rgba(0, 0, 0, 0.7)", s.style.zIndex = "10002", s.style.display = "flex", s.style.justifyContent = "center", s.style.alignItems = "center", s.style.animation = "ifFadeIn 0.3s ease", s.setAttribute("data-widget-id", t.id);
       const n = document.createElement("div");
-      n.style.position = "relative", n.style.background = "white", n.style.borderRadius = "12px", n.style.padding = "20px", n.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.4)", n.style.animation = "slideIn 0.3s ease", n.style.maxWidth = "90vw", n.style.maxHeight = "90vh";
+      n.style.position = "relative", n.style.background = "white", n.style.borderRadius = "12px", n.style.padding = "20px", n.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.4)", n.style.animation = "ifSlideIn 0.3s ease", n.style.maxWidth = "90vw", n.style.maxHeight = "90vh";
       const e = document.createElement("button");
       e.innerHTML = "&times;", e.style.position = "absolute", e.style.top = "5px", e.style.right = "5px", e.style.background = "none", e.style.border = "none", e.style.fontSize = "28px", e.style.cursor = "pointer", e.style.color = "#666", e.style.lineHeight = "1", e.style.width = "30px", e.style.height = "30px", e.style.display = "flex", e.style.alignItems = "center", e.style.justifyContent = "center", e.style.borderRadius = "50%", e.style.transition = "background-color 0.2s ease", e.addEventListener("mouseenter", () => {
         e.style.background = "#f0f0f0";
@@ -315,11 +315,11 @@ const l = class l {
       n.appendChild(e), n.appendChild(r), s.appendChild(n);
       const o = document.createElement("style");
       o.textContent = `
-        @keyframes fadeIn {
+        @keyframes ifFadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes slideIn {
+        @keyframes ifSlideIn {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
