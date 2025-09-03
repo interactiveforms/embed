@@ -4,14 +4,14 @@ A library for embedding interactive forms and widgets on your website.
 
 ## Installation
 
-### Via CDN (jsdelivr)
+**Recommendation:** For better performance, include the script in `<head>` with the `async` attribute and place it before elements with data attributes.
 
-**IIFE/UMD:**
+### Via CDN (unpkg)
+
+**UMD (recommended for CDN):**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/interactiveform-embedder@latest/dist/index.iife.js"></script>
-<!-- or -->
-<script src="https://cdn.jsdelivr.net/npm/interactiveform-embedder@latest/dist/index.umd.js"></script>
+<script async src="https://unpkg.com/interactiveform-embedder@latest/dist/index.js"></script>
 ```
 
 **ESM:**
@@ -19,8 +19,20 @@ A library for embedding interactive forms and widgets on your website.
 ```html
 <script
   type="module"
-  src="https://cdn.jsdelivr.net/npm/interactiveform-embedder@latest/dist/index.es.js"
+  src="https://unpkg.com/interactiveform-embedder@latest/dist/index.es.js"
 ></script>
+```
+
+**Dynamic loading via JavaScript:**
+
+```html
+<script>
+  // Load script in head with async
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/interactiveform-embedder@latest/dist/index.js';
+  script.async = true;
+  document.head.appendChild(script);
+</script>
 ```
 
 ### Via npm
@@ -188,15 +200,17 @@ interface WidgetConfig {
 
 ## Build Formats
 
-- **IIFE** — for direct inclusion via `<script>` (minified)
-- **UMD** — universal module (minified)
-- **ES** — for modern bundlers and `<script type="module">` (minified)
+- **UMD** — universal module for CDN and direct inclusion via `<script>` (minified, main file `index.js`)
+- **ES** — for modern bundlers and `<script type="module">` (minified, file `index.es.js`)
 
 ## Usage Examples
 
 ### Data attributes approach
 
 ```html
+<!-- Include script in head with async -->
+<script async src="https://unpkg.com/interactiveform-embedder@latest/dist/index.js"></script>
+
 <!-- Multiple page-body widgets with the same ID are allowed -->
 <div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="page-body"></div>
 <div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="page-body"></div>
@@ -213,13 +227,14 @@ interface WidgetConfig {
 ></div>
 ```
 
-<script src="https://cdn.jsdelivr.net/npm/interactiveform-embedder@latest/dist/index.iife.js"></script>
-
 ````
 
 ### GTM-like approach with ifLayer
 
 ```html
+<!-- Include script in head with async -->
+<script async src="https://unpkg.com/interactiveform-embedder@latest/dist/index.js"></script>
+
 <script>
   window.ifLayer = window.ifLayer || [];
   window.ifLayer.push({
@@ -228,7 +243,6 @@ interface WidgetConfig {
     container: '#form-container',
   });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/interactiveform-embedder@latest/dist/index.iife.js"></script>
 ````
 
 ### Programmatic creation

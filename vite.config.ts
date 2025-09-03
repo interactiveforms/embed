@@ -34,8 +34,8 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'InteractiveFormEmbedder',
-      fileName: 'index',
-      formats: ['iife', 'umd', 'es'],
+      fileName: (format) => (format === 'umd' ? 'index.js' : `index.${format}.js`),
+      formats: ['umd', 'es'],
     },
   },
 });
