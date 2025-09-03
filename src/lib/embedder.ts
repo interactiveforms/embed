@@ -1,10 +1,12 @@
 import { nanoid } from 'nanoid';
+import Cookies from 'js-cookie';
 
 export interface WidgetConfig {
   id: string;
   type: 'page-body' | 'float-button' | 'pop-up';
   timeout?: number;
   container?: string;
+  iframeSrc?: string;
 }
 
 declare global {
@@ -20,6 +22,28 @@ if (typeof window !== 'undefined') {
 export class Embedder {
   private readonly widgets: Map<string, WidgetConfig> = new Map();
   private static instance: Embedder | null = null;
+  private ifLayerProxy: WidgetConfig[] | null = null;
+
+  /**
+   * Checks if a popup should be shown based on cookie
+   * @param popupId - Unique popup identifier
+   * @returns True if popup should be shown, false otherwise
+   * @private
+   */
+  private shouldShowPopup(popupId: string): boolean {
+    const cookieName = `if-popup-${popupId}`;
+    return Cookies.get(cookieName) === undefined;
+  }
+
+  /**
+   * Marks a popup as shown by setting a cookie
+   * @param popupId - Unique popup identifier
+   * @private
+   */
+  private markPopupAsShown(popupId: string): void {
+    const cookieName = `if-popup-${popupId}`;
+    Cookies.set(cookieName, '1', { expires: 1 });
+  }
 
   /**
    * Creates a new Embedder instance with optional initial widget configuration
@@ -31,6 +55,7 @@ export class Embedder {
     }
 
     this.processWidgetLayer();
+    this.setupIfLayerWatcher();
 
     this.initializeDataAttributeWidgets();
   }
@@ -115,15 +140,18 @@ export class Embedder {
    * @param ifId - The unique identifier for the interactive form
    * @param width - The width of the iframe (default: '614px')
    * @param height - The height of the iframe (default: '300px')
+   * @param iframeSrc - The base URL for the iframe (optional)
    * @returns HTMLIFrameElement - The created iframe element
    */
   public static createInlineWidget(
     ifId: string,
     width: string = '614px',
     height: string = '300px',
+    iframeSrc?: string,
   ): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
-    iframe.src = `http://localhost:4200/${ifId}`;
+    const baseUrl = iframeSrc || 'https://if-form-staging.up.railway.app';
+    iframe.src = `${baseUrl}/${ifId}`;
     iframe.width = width;
     iframe.height = height;
     iframe.style.maxWidth = '100%';
@@ -155,6 +183,41 @@ export class Embedder {
         this.addWidget(config);
       });
     }
+  }
+
+  /**
+   * Sets up a watcher for changes to the global ifLayer array
+   * @private
+   */
+  private setupIfLayerWatcher(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    this.ifLayerProxy = new Proxy(window.ifLayer, {
+      set: (target, property, value) => {
+        const result = Reflect.set(target, property, value);
+
+        if (typeof property === 'number' && value && typeof value === 'object') {
+          this.addWidget(value as WidgetConfig);
+        }
+
+        if (property === 'length' && Array.isArray(target)) {
+          const newItems = target.filter(
+            (_item, index) => index >= target.length - (value as number),
+          );
+          newItems.forEach((config) => {
+            if (config && typeof config === 'object') {
+              this.addWidget(config as WidgetConfig);
+            }
+          });
+        }
+
+        return result;
+      },
+    });
+
+    window.ifLayer = this.ifLayerProxy;
   }
 
   /**
@@ -205,7 +268,7 @@ export class Embedder {
       return;
     }
 
-    const iframe = this.createIframe(config.id, '614px', '300px');
+    const iframe = this.createIframe(config.id, '614px', '300px', config.iframeSrc);
     iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
       element.appendChild(iframe);
@@ -302,7 +365,7 @@ export class Embedder {
       closeButton.style.background = 'transparent';
     });
 
-    const iframe = this.createIframe(config.id, '614px', '300px');
+    const iframe = this.createIframe(config.id, '614px', '300px', config.iframeSrc);
 
     iframeContainer.appendChild(closeButton);
     iframeContainer.appendChild(iframe);
@@ -327,6 +390,10 @@ export class Embedder {
    * @private
    */
   private createPopUpEmbed(config: WidgetConfig): void {
+    if (!this.shouldShowPopup(config.id)) {
+      return;
+    }
+
     const timeoutMs = config.timeout ? config.timeout * 1000 : 3000;
 
     setTimeout(() => {
@@ -381,7 +448,7 @@ export class Embedder {
         closeButton.style.background = 'transparent';
       });
 
-      const iframe = this.createIframe(config.id, '614px', '300px');
+      const iframe = this.createIframe(config.id, '614px', '300px', config.iframeSrc);
 
       modalContent.appendChild(closeButton);
       modalContent.appendChild(iframe);
@@ -411,6 +478,8 @@ export class Embedder {
       });
 
       document.body.appendChild(modal);
+
+      this.markPopupAsShown(config.id);
     }, timeoutMs);
   }
 
@@ -419,12 +488,19 @@ export class Embedder {
    * @param ifId - The unique identifier for the interactive form
    * @param width - The width of the iframe (CSS units supported)
    * @param height - The height of the iframe (CSS units supported)
+   * @param iframeSrc - The base URL for the iframe (optional)
    * @returns HTMLIFrameElement - The configured iframe element
    * @private
    */
-  private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
+  private createIframe(
+    ifId: string,
+    width: string,
+    height: string,
+    iframeSrc?: string,
+  ): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
-    iframe.src = `https://if-form-staging.up.railway.app/${ifId}`;
+    const baseUrl = iframeSrc || 'https://if-form-staging.up.railway.app';
+    iframe.src = `${baseUrl}/${ifId}`;
     iframe.width = width;
     iframe.height = height;
     iframe.style.maxWidth = '100%';
@@ -447,6 +523,7 @@ export class Embedder {
       if (widgetId) {
         const widgetType = element.getAttribute('data-if-type');
         const widgetTimeout = element.getAttribute('data-if-timeout');
+        const widgetIframeSrc = element.getAttribute('data-if-iframe-src');
 
         let config: WidgetConfig;
         if (widgetType === 'page-body') {
@@ -454,17 +531,20 @@ export class Embedder {
             id: widgetId,
             type: 'page-body',
             container: `[data-if-id="${widgetId}"][data-if-type="page-body"]`,
+            iframeSrc: widgetIframeSrc || undefined,
           };
         } else if (widgetType === 'float-button') {
           config = {
             id: widgetId,
             type: 'float-button',
+            iframeSrc: widgetIframeSrc || undefined,
           };
         } else if (widgetType === 'pop-up') {
           config = {
             id: widgetId,
             type: 'pop-up',
             timeout: Number(widgetTimeout || 10),
+            iframeSrc: widgetIframeSrc || undefined,
           };
         } else {
           console.warn(`Unknown widget type for data-if-id: ${widgetId}`);
@@ -476,6 +556,7 @@ export class Embedder {
         element.removeAttribute('data-if-id');
         element.removeAttribute('data-if-type');
         element.removeAttribute('data-if-timeout');
+        element.removeAttribute('data-if-iframe-src');
       }
     });
   }

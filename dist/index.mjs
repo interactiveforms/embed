@@ -1,41 +1,131 @@
-const c = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
-let p = (r = 21) => {
-  let s = "", i = crypto.getRandomValues(new Uint8Array(r |= 0));
-  for (; r--; )
-    s += c[i[r] & 63];
-  return s;
+const m = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
+let w = (d = 21) => {
+  let t = "", i = crypto.getRandomValues(new Uint8Array(d |= 0));
+  for (; d--; )
+    t += m[i[d] & 63];
+  return t;
 };
+/*! js-cookie v3.0.5 | MIT */
+function c(d) {
+  for (var t = 1; t < arguments.length; t++) {
+    var i = arguments[t];
+    for (var s in i)
+      d[s] = i[s];
+  }
+  return d;
+}
+var g = {
+  read: function(d) {
+    return d[0] === '"' && (d = d.slice(1, -1)), d.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
+  },
+  write: function(d) {
+    return encodeURIComponent(d).replace(
+      /%(2[346BF]|3[AC-F]|40|5[BDE]|60|7[BCD])/g,
+      decodeURIComponent
+    );
+  }
+};
+function f(d, t) {
+  function i(n, e, r) {
+    if (!(typeof document > "u")) {
+      r = c({}, t, r), typeof r.expires == "number" && (r.expires = new Date(Date.now() + r.expires * 864e5)), r.expires && (r.expires = r.expires.toUTCString()), n = encodeURIComponent(n).replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent).replace(/[()]/g, escape);
+      var o = "";
+      for (var a in r)
+        r[a] && (o += "; " + a, r[a] !== !0 && (o += "=" + r[a].split(";")[0]));
+      return document.cookie = n + "=" + d.write(e, n) + o;
+    }
+  }
+  function s(n) {
+    if (!(typeof document > "u" || arguments.length && !n)) {
+      for (var e = document.cookie ? document.cookie.split("; ") : [], r = {}, o = 0; o < e.length; o++) {
+        var a = e[o].split("="), u = a.slice(1).join("=");
+        try {
+          var p = decodeURIComponent(a[0]);
+          if (r[p] = d.read(u, p), n === p)
+            break;
+        } catch {
+        }
+      }
+      return n ? r[n] : r;
+    }
+  }
+  return Object.create(
+    {
+      set: i,
+      get: s,
+      remove: function(n, e) {
+        i(
+          n,
+          "",
+          c({}, e, {
+            expires: -1
+          })
+        );
+      },
+      withAttributes: function(n) {
+        return f(this.converter, c({}, this.attributes, n));
+      },
+      withConverter: function(n) {
+        return f(c({}, this.converter, n), this.attributes);
+      }
+    },
+    {
+      attributes: { value: Object.freeze(t) },
+      converter: { value: Object.freeze(d) }
+    }
+  );
+}
+var h = f(g, { path: "/" });
 typeof window < "u" && (window.ifLayer = window.ifLayer || []);
-const a = class a {
+const l = class l {
   /**
    * Creates a new Embedder instance with optional initial widget configuration
    * @param config - Initial widget configuration (optional)
    */
-  constructor(s) {
-    this.widgets = /* @__PURE__ */ new Map(), s && this.addWidget(s), this.processWidgetLayer(), this.initializeDataAttributeWidgets();
+  constructor(t) {
+    this.widgets = /* @__PURE__ */ new Map(), this.ifLayerProxy = null, t && this.addWidget(t), this.processWidgetLayer(), this.setupIfLayerWatcher(), this.initializeDataAttributeWidgets();
+  }
+  /**
+   * Checks if a popup should be shown based on cookie
+   * @param popupId - Unique popup identifier
+   * @returns True if popup should be shown, false otherwise
+   * @private
+   */
+  shouldShowPopup(t) {
+    const i = `if-popup-${t}`;
+    return h.get(i) === void 0;
+  }
+  /**
+   * Marks a popup as shown by setting a cookie
+   * @param popupId - Unique popup identifier
+   * @private
+   */
+  markPopupAsShown(t) {
+    const i = `if-popup-${t}`;
+    h.set(i, "1", { expires: 1 });
   }
   /**
    * Gets or creates a singleton instance of Embedder
    * @returns Embedder instance
    */
   static getInstance() {
-    return a.instance || (a.instance = new a()), a.instance;
+    return l.instance || (l.instance = new l()), l.instance;
   }
   /**
    * Adds a new widget configuration to the embedder
    * @param config - Widget configuration object
    */
-  addWidget(s) {
-    if (s.type === "page-body") {
-      const i = `${s.id}-${s.type}-${p()}`;
-      this.widgets.set(i, s), this.initializeWidget(s);
+  addWidget(t) {
+    if (t.type === "page-body") {
+      const i = `${t.id}-${t.type}-${w()}`;
+      this.widgets.set(i, t), this.initializeWidget(t);
     } else {
-      const i = `${s.id}-${s.type}`;
+      const i = `${t.id}-${t.type}`;
       if (this.widgets.has(i)) {
-        console.warn(`Widget with id ${s.id} and type ${s.type} already exists`);
+        console.warn(`Widget with id ${t.id} and type ${t.type} already exists`);
         return;
       }
-      this.widgets.set(i, s), this.initializeWidget(s);
+      this.widgets.set(i, t), this.initializeWidget(t);
     }
   }
   /**
@@ -43,28 +133,28 @@ const a = class a {
    * @param id - Widget identifier
    * @param type - Widget type
    */
-  removeWidget(s, i) {
+  removeWidget(t, i) {
     if (i === "page-body") {
-      const n = [];
-      this.widgets.forEach((e, t) => {
-        e.id === s && e.type === i && n.push(t);
-      }), n.forEach((e) => {
-        const t = this.widgets.get(e);
-        t && (this.destroyWidget(t), this.widgets.delete(e));
+      const s = [];
+      this.widgets.forEach((n, e) => {
+        n.id === t && n.type === i && s.push(e);
+      }), s.forEach((n) => {
+        const e = this.widgets.get(n);
+        e && (this.destroyWidget(e), this.widgets.delete(n));
       });
     } else {
-      const n = `${s}-${i}`, e = this.widgets.get(n);
-      e && (this.destroyWidget(e), this.widgets.delete(n));
+      const s = `${t}-${i}`, n = this.widgets.get(s);
+      n && (this.destroyWidget(n), this.widgets.delete(s));
     }
   }
   /**
    * Forces reinitialization of all widgets
    */
   reinitialize() {
-    this.widgets.forEach((s) => {
-      this.destroyWidget(s);
-    }), this.widgets.forEach((s) => {
-      this.initializeWidget(s);
+    this.widgets.forEach((t) => {
+      this.destroyWidget(t);
+    }), this.widgets.forEach((t) => {
+      this.initializeWidget(t);
     });
   }
   /**
@@ -73,13 +163,14 @@ const a = class a {
    * @param ifId - The unique identifier for the interactive form
    * @param width - The width of the iframe (default: '614px')
    * @param height - The height of the iframe (default: '300px')
+   * @param iframeSrc - The base URL for the iframe (optional)
    * @returns HTMLIFrameElement - The created iframe element
    */
-  static createInlineWidget(s, i = "614px", n = "300px") {
-    const e = document.createElement("iframe");
-    e.src = `http://localhost:4200/${s}`, e.width = i, e.height = n, e.style.maxWidth = "100%", e.style.width = i, e.style.height = n, e.style.border = "none", e.setAttribute("data-widget-id", s);
-    const t = document.currentScript;
-    return t && t.parentNode ? t.parentNode.insertBefore(e, t) : document.body.appendChild(e), e;
+  static createInlineWidget(t, i = "614px", s = "300px", n) {
+    const e = document.createElement("iframe"), r = n || "https://if-form-staging.up.railway.app";
+    e.src = `${r}/${t}`, e.width = i, e.height = s, e.style.maxWidth = "100%", e.style.width = i, e.style.height = s, e.style.border = "none", e.setAttribute("data-widget-id", t);
+    const o = document.currentScript;
+    return o && o.parentNode ? o.parentNode.insertBefore(e, o) : document.body.appendChild(e), e;
   }
   /**
    * Processes widgets from the global ifLayer array
@@ -87,27 +178,43 @@ const a = class a {
    */
   processWidgetLayer() {
     if (typeof window < "u" && window.ifLayer && window.ifLayer.length > 0) {
-      const s = [...window.ifLayer];
-      window.ifLayer = [], s.forEach((i) => {
+      const t = [...window.ifLayer];
+      window.ifLayer = [], t.forEach((i) => {
         this.addWidget(i);
       });
     }
+  }
+  /**
+   * Sets up a watcher for changes to the global ifLayer array
+   * @private
+   */
+  setupIfLayerWatcher() {
+    typeof window > "u" || (this.ifLayerProxy = new Proxy(window.ifLayer, {
+      set: (t, i, s) => {
+        const n = Reflect.set(t, i, s);
+        return typeof i == "number" && s && typeof s == "object" && this.addWidget(s), i === "length" && Array.isArray(t) && t.filter(
+          (r, o) => o >= t.length - s
+        ).forEach((r) => {
+          r && typeof r == "object" && this.addWidget(r);
+        }), n;
+      }
+    }), window.ifLayer = this.ifLayerProxy);
   }
   /**
    * Initializes a specific widget based on its configuration
    * @param config - Widget configuration object
    * @private
    */
-  initializeWidget(s) {
-    switch (s.type) {
+  initializeWidget(t) {
+    switch (t.type) {
       case "page-body":
-        this.createPageBodyEmbed(s);
+        this.createPageBodyEmbed(t);
         break;
       case "float-button":
-        this.createFloatButtonEmbed(s);
+        this.createFloatButtonEmbed(t);
         break;
       case "pop-up":
-        this.createPopUpEmbed(s);
+        this.createPopUpEmbed(t);
         break;
     }
   }
@@ -116,9 +223,9 @@ const a = class a {
    * @param config - Widget configuration object
    * @private
    */
-  destroyWidget(s) {
-    document.querySelectorAll(`[data-widget-id="${s.id}"]`).forEach((n) => {
-      n.remove();
+  destroyWidget(t) {
+    document.querySelectorAll(`[data-widget-id="${t.id}"]`).forEach((s) => {
+      s.remove();
     });
   }
   /**
@@ -126,19 +233,19 @@ const a = class a {
    * @param config - Widget configuration object
    * @private
    */
-  createPageBodyEmbed(s) {
-    if (!s.container) {
-      console.error(`Container is required for page-body widget ${s.id}`);
+  createPageBodyEmbed(t) {
+    if (!t.container) {
+      console.error(`Container is required for page-body widget ${t.id}`);
       return;
     }
-    const i = document.querySelectorAll(s.container);
+    const i = document.querySelectorAll(t.container);
     if (i.length === 0) {
-      console.error(`Container element not found for selector: ${s.container}`);
+      console.error(`Container element not found for selector: ${t.container}`);
       return;
     }
-    const n = this.createIframe(s.id, "614px", "300px");
-    n.setAttribute("data-widget-id", s.id), i.forEach((e) => {
-      e.appendChild(n);
+    const s = this.createIframe(t.id, "614px", "300px", t.iframeSrc);
+    s.setAttribute("data-widget-id", t.id), i.forEach((n) => {
+      n.appendChild(s);
     });
   }
   /**
@@ -146,13 +253,13 @@ const a = class a {
    * @param config - Widget configuration object
    * @private
    */
-  createFloatButtonEmbed(s) {
+  createFloatButtonEmbed(t) {
     const i = document.createElement("button");
     i.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
-    `, i.style.width = "54px", i.style.height = "54px", i.style.padding = "0", i.style.position = "fixed", i.style.bottom = "20px", i.style.right = "20px", i.style.zIndex = "10000", i.style.color = "white", i.style.border = "none", i.style.cursor = "pointer", i.style.backgroundColor = "transparent", i.style.transition = "all 0.3s ease", i.style.animation = "ifScale 5s infinite", i.setAttribute("data-widget-id", s.id);
-    const n = document.createElement("style");
-    n.textContent = `
+    `, i.style.width = "54px", i.style.height = "54px", i.style.padding = "0", i.style.position = "fixed", i.style.bottom = "20px", i.style.right = "20px", i.style.zIndex = "10000", i.style.color = "white", i.style.border = "none", i.style.cursor = "pointer", i.style.backgroundColor = "transparent", i.style.transition = "all 0.3s ease", i.style.animation = "ifScale 5s infinite", i.setAttribute("data-widget-id", t.id);
+    const s = document.createElement("style");
+    s.textContent = `
       @keyframes ifScale {
         0%, 80%, 100% {
           transform: scale(1);
@@ -164,48 +271,50 @@ const a = class a {
           transform: scale(1.05);
         }
       }
-    `, document.head.appendChild(n), i.addEventListener("mouseenter", () => {
+    `, document.head.appendChild(s), i.addEventListener("mouseenter", () => {
       i.style.transform = "translateY(-2px)", i.style.animation = "none";
     }), i.addEventListener("mouseleave", () => {
       i.style.transform = "scale(1)", i.style.animation = "ifScale 5s infinite";
     });
-    const e = document.createElement("div");
-    e.style.position = "fixed", e.style.bottom = "90px", e.style.right = "20px", e.style.zIndex = "10001", e.style.display = "none", e.style.background = "white", e.style.borderRadius = "8px", e.style.padding = "12px", e.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.3)", e.setAttribute("data-widget-id", s.id);
-    const t = document.createElement("button");
-    t.innerHTML = "&times;", t.style.position = "absolute", t.style.top = "5px", t.style.right = "5px", t.style.background = "none", t.style.border = "none", t.style.fontSize = "24px", t.style.cursor = "pointer", t.style.color = "#666", t.style.lineHeight = "1", t.style.width = "30px", t.style.height = "30px", t.style.display = "flex", t.style.alignItems = "center", t.style.justifyContent = "center", t.style.borderRadius = "50%", t.style.transition = "background-color 0.2s ease", t.addEventListener("mouseenter", () => {
-      t.style.background = "#f0f0f0";
-    }), t.addEventListener("mouseleave", () => {
-      t.style.background = "transparent";
+    const n = document.createElement("div");
+    n.style.position = "fixed", n.style.bottom = "90px", n.style.right = "20px", n.style.zIndex = "10001", n.style.display = "none", n.style.background = "white", n.style.borderRadius = "8px", n.style.padding = "12px", n.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.3)", n.setAttribute("data-widget-id", t.id);
+    const e = document.createElement("button");
+    e.innerHTML = "&times;", e.style.position = "absolute", e.style.top = "5px", e.style.right = "5px", e.style.background = "none", e.style.border = "none", e.style.fontSize = "24px", e.style.cursor = "pointer", e.style.color = "#666", e.style.lineHeight = "1", e.style.width = "30px", e.style.height = "30px", e.style.display = "flex", e.style.alignItems = "center", e.style.justifyContent = "center", e.style.borderRadius = "50%", e.style.transition = "background-color 0.2s ease", e.addEventListener("mouseenter", () => {
+      e.style.background = "#f0f0f0";
+    }), e.addEventListener("mouseleave", () => {
+      e.style.background = "transparent";
     });
-    const d = this.createIframe(s.id, "614px", "300px");
-    e.appendChild(t), e.appendChild(d), i.addEventListener("click", () => {
-      e.style.display = "block", i.style.animation = "none";
-    }), t.addEventListener("click", () => {
-      e.style.display = "none", i.style.animation = "ifScale 5s infinite";
-    }), document.body.appendChild(i), document.body.appendChild(e);
+    const r = this.createIframe(t.id, "614px", "300px", t.iframeSrc);
+    n.appendChild(e), n.appendChild(r), i.addEventListener("click", () => {
+      n.style.display = "block", i.style.animation = "none";
+    }), e.addEventListener("click", () => {
+      n.style.display = "none", i.style.animation = "ifScale 5s infinite";
+    }), document.body.appendChild(i), document.body.appendChild(n);
   }
   /**
    * Creates a popup modal embed that appears after a specified timeout
    * @param config - Widget configuration object
    * @private
    */
-  createPopUpEmbed(s) {
-    const i = s.timeout ? s.timeout * 1e3 : 3e3;
+  createPopUpEmbed(t) {
+    if (!this.shouldShowPopup(t.id))
+      return;
+    const i = t.timeout ? t.timeout * 1e3 : 3e3;
     setTimeout(() => {
+      const s = document.createElement("div");
+      s.style.position = "fixed", s.style.top = "0", s.style.left = "0", s.style.width = "100%", s.style.height = "100%", s.style.background = "rgba(0, 0, 0, 0.7)", s.style.zIndex = "10002", s.style.display = "flex", s.style.justifyContent = "center", s.style.alignItems = "center", s.style.animation = "fadeIn 0.3s ease", s.setAttribute("data-widget-id", t.id);
       const n = document.createElement("div");
-      n.style.position = "fixed", n.style.top = "0", n.style.left = "0", n.style.width = "100%", n.style.height = "100%", n.style.background = "rgba(0, 0, 0, 0.7)", n.style.zIndex = "10002", n.style.display = "flex", n.style.justifyContent = "center", n.style.alignItems = "center", n.style.animation = "fadeIn 0.3s ease", n.setAttribute("data-widget-id", s.id);
-      const e = document.createElement("div");
-      e.style.position = "relative", e.style.background = "white", e.style.borderRadius = "12px", e.style.padding = "20px", e.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.4)", e.style.animation = "slideIn 0.3s ease", e.style.maxWidth = "90vw", e.style.maxHeight = "90vh";
-      const t = document.createElement("button");
-      t.innerHTML = "&times;", t.style.position = "absolute", t.style.top = "5px", t.style.right = "5px", t.style.background = "none", t.style.border = "none", t.style.fontSize = "28px", t.style.cursor = "pointer", t.style.color = "#666", t.style.lineHeight = "1", t.style.width = "30px", t.style.height = "30px", t.style.display = "flex", t.style.alignItems = "center", t.style.justifyContent = "center", t.style.borderRadius = "50%", t.style.transition = "background-color 0.2s ease", t.addEventListener("mouseenter", () => {
-        t.style.background = "#f0f0f0";
-      }), t.addEventListener("mouseleave", () => {
-        t.style.background = "transparent";
+      n.style.position = "relative", n.style.background = "white", n.style.borderRadius = "12px", n.style.padding = "20px", n.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.4)", n.style.animation = "slideIn 0.3s ease", n.style.maxWidth = "90vw", n.style.maxHeight = "90vh";
+      const e = document.createElement("button");
+      e.innerHTML = "&times;", e.style.position = "absolute", e.style.top = "5px", e.style.right = "5px", e.style.background = "none", e.style.border = "none", e.style.fontSize = "28px", e.style.cursor = "pointer", e.style.color = "#666", e.style.lineHeight = "1", e.style.width = "30px", e.style.height = "30px", e.style.display = "flex", e.style.alignItems = "center", e.style.justifyContent = "center", e.style.borderRadius = "50%", e.style.transition = "background-color 0.2s ease", e.addEventListener("mouseenter", () => {
+        e.style.background = "#f0f0f0";
+      }), e.addEventListener("mouseleave", () => {
+        e.style.background = "transparent";
       });
-      const d = this.createIframe(s.id, "614px", "300px");
-      e.appendChild(t), e.appendChild(d), n.appendChild(e);
-      const l = document.createElement("style");
-      l.textContent = `
+      const r = this.createIframe(t.id, "614px", "300px", t.iframeSrc);
+      n.appendChild(e), n.appendChild(r), s.appendChild(n);
+      const o = document.createElement("style");
+      o.textContent = `
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -214,11 +323,11 @@ const a = class a {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `, document.head.appendChild(l), t.addEventListener("click", () => {
-        n.remove();
-      }), n.addEventListener("click", (y) => {
-        y.target === n && n.remove();
-      }), document.body.appendChild(n);
+      `, document.head.appendChild(o), e.addEventListener("click", () => {
+        s.remove();
+      }), s.addEventListener("click", (a) => {
+        a.target === s && s.remove();
+      }), document.body.appendChild(s), this.markPopupAsShown(t.id);
     }, i);
   }
   /**
@@ -226,12 +335,13 @@ const a = class a {
    * @param ifId - The unique identifier for the interactive form
    * @param width - The width of the iframe (CSS units supported)
    * @param height - The height of the iframe (CSS units supported)
+   * @param iframeSrc - The base URL for the iframe (optional)
    * @returns HTMLIFrameElement - The configured iframe element
    * @private
    */
-  createIframe(s, i, n) {
-    const e = document.createElement("iframe");
-    return e.src = `https://if-form-staging.up.railway.app/${s}`, e.width = i, e.height = n, e.style.maxWidth = "100%", e.style.width = i, e.style.height = n, e.style.border = "none", e;
+  createIframe(t, i, s, n) {
+    const e = document.createElement("iframe"), r = n || "https://if-form-staging.up.railway.app";
+    return e.src = `${r}/${t}`, e.width = i, e.height = s, e.style.maxWidth = "100%", e.style.width = i, e.style.height = s, e.style.border = "none", e;
   }
   /**
    * Initializes widgets from data attributes on the document body.
@@ -241,43 +351,46 @@ const a = class a {
    */
   initializeDataAttributeWidgets() {
     document.querySelectorAll("[data-if-id]").forEach((i) => {
-      const n = i.getAttribute("data-if-id");
-      if (n) {
-        const e = i.getAttribute("data-if-type"), t = i.getAttribute("data-if-timeout");
-        let d;
-        if (e === "page-body")
-          d = {
-            id: n,
+      const s = i.getAttribute("data-if-id");
+      if (s) {
+        const n = i.getAttribute("data-if-type"), e = i.getAttribute("data-if-timeout"), r = i.getAttribute("data-if-iframe-src");
+        let o;
+        if (n === "page-body")
+          o = {
+            id: s,
             type: "page-body",
-            container: `[data-if-id="${n}"][data-if-type="page-body"]`
+            container: `[data-if-id="${s}"][data-if-type="page-body"]`,
+            iframeSrc: r || void 0
           };
-        else if (e === "float-button")
-          d = {
-            id: n,
-            type: "float-button"
+        else if (n === "float-button")
+          o = {
+            id: s,
+            type: "float-button",
+            iframeSrc: r || void 0
           };
-        else if (e === "pop-up")
-          d = {
-            id: n,
+        else if (n === "pop-up")
+          o = {
+            id: s,
             type: "pop-up",
-            timeout: Number(t || 10)
+            timeout: Number(e || 10),
+            iframeSrc: r || void 0
           };
         else {
-          console.warn(`Unknown widget type for data-if-id: ${n}`);
+          console.warn(`Unknown widget type for data-if-id: ${s}`);
           return;
         }
-        this.addWidget(d), i.removeAttribute("data-if-id"), i.removeAttribute("data-if-type"), i.removeAttribute("data-if-timeout");
+        this.addWidget(o), i.removeAttribute("data-if-id"), i.removeAttribute("data-if-type"), i.removeAttribute("data-if-timeout"), i.removeAttribute("data-if-iframe-src");
       }
     });
   }
 };
-a.instance = null;
-let o = a;
+l.instance = null;
+let y = l;
 (function() {
   typeof window < "u" && (document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => {
-    new o();
-  }) : new o());
+    new y();
+  }) : new y());
 })();
 export {
-  o as Embedder
+  y as Embedder
 };

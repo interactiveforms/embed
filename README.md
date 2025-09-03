@@ -54,6 +54,13 @@ After loading the script, the library automatically initializes widgets from ele
 <!-- Pop-up widget with timeout -->
 <div data-if-id="my-form" data-if-type="pop-up" data-if-timeout="10"></div>
 
+<!-- Widget with custom iframe source -->
+<div
+  data-if-id="my-form"
+  data-if-type="page-body"
+  data-if-iframe-src="https://custom-domain.com"
+></div>
+
 <!-- Custom tags (Wix, etc.) are also supported -->
 <form-container data-if-id="my-form" data-if-type="page-body"></form-container>
 ```
@@ -78,6 +85,12 @@ The library also automatically processes widgets from `window.ifLayer`:
     id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
     type: 'pop-up',
     timeout: 10,
+  });
+  window.ifLayer.push({
+    id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
+    type: 'page-body',
+    container: '#form-container',
+    iframeSrc: 'https://custom-domain.com',
   });
 </script>
 ```
@@ -115,6 +128,13 @@ embedder.addWidget({
   timeout: 10,
 });
 
+embedder.addWidget({
+  id: 'my-form',
+  type: 'page-body',
+  container: '#form-container',
+  iframeSrc: 'https://custom-domain.com',
+});
+
 // Remove widget
 embedder.removeWidget('my-form', 'float-button');
 
@@ -130,6 +150,8 @@ const embedder = Embedder.getInstance();
 ```html
 <script>
   Embedder.createInlineWidget('my-form', '800px', '400px');
+  // With custom iframe source
+  Embedder.createInlineWidget('my-form', '800px', '400px', 'https://custom-domain.com');
 </script>
 ```
 
@@ -137,17 +159,20 @@ const embedder = Embedder.getInstance();
 
 - **`page-body`** — embeds in specified container (can have multiple instances with the same ID)
 - **`float-button`** — floating button with dropdown iframe (unique per ID)
-- **`pop-up`** — modal window with delay (unique per ID, optional `timeout` in seconds)
+- **`pop-up`** — modal window with delay (unique per ID, optional `timeout` in seconds, shown only once per day)
 
 ## Data Attributes
 
 - **`data-if-id`** — unique widget identifier (required)
 - **`data-if-type`** — widget type: `page-body`, `float-button`, `pop-up`
 - **`data-if-timeout`** — delay for pop-up in seconds (optional)
+- **`data-if-iframe-src`** — custom iframe source URL (optional, defaults to `https://if-form-staging.up.railway.app`)
 
 **Note:** All data attributes are automatically removed after widget initialization to prevent re-initialization. This works with any HTML elements including custom tags like `<form-container>` (Wix compatibility).
 
 **Multiple instances:** You can have multiple `page-body` widgets with the same ID on the same page. Other widget types (`float-button`, `pop-up`) remain unique per ID.
+
+**Popup behavior:** Pop-up widgets are shown only once per day per unique ID. After showing, a cookie `if-popup-{id}` is set for 1 day to prevent repeated displays.
 
 ## Widget Configuration
 
@@ -157,6 +182,7 @@ interface WidgetConfig {
   type: 'page-body' | 'float-button' | 'pop-up';
   timeout?: number; // Delay for pop-up (in seconds)
   container?: string; // CSS selector for page-body
+  iframeSrc?: string; // Custom iframe source URL (defaults to https://if-form-staging.up.railway.app)
 }
 ```
 
@@ -178,6 +204,13 @@ interface WidgetConfig {
 <!-- Other widget types remain unique per ID -->
 <div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="float-button"></div>
 <div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="pop-up" data-if-timeout="10"></div>
+
+<!-- With custom iframe source -->
+<div
+  data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx"
+  data-if-type="page-body"
+  data-if-iframe-src="https://custom-domain.com"
+></div>
 ```
 
 <script src="https://cdn.jsdelivr.net/npm/interactiveform-embedder@latest/dist/index.iife.js"></script>
@@ -216,5 +249,12 @@ embedder.addWidget({
 ```html
 <script>
   Embedder.createInlineWidget('xxxxxxxxxxxxxxxxxxxxxxxx', '800px', '400px');
+  // With custom iframe source
+  Embedder.createInlineWidget(
+    'xxxxxxxxxxxxxxxxxxxxxxxx',
+    '800px',
+    '400px',
+    'https://custom-domain.com',
+  );
 </script>
 ```

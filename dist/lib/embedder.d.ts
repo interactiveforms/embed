@@ -3,6 +3,7 @@ export interface WidgetConfig {
     type: 'page-body' | 'float-button' | 'pop-up';
     timeout?: number;
     container?: string;
+    iframeSrc?: string;
 }
 declare global {
     interface Window {
@@ -12,6 +13,20 @@ declare global {
 export declare class Embedder {
     private readonly widgets;
     private static instance;
+    private ifLayerProxy;
+    /**
+     * Checks if a popup should be shown based on cookie
+     * @param popupId - Unique popup identifier
+     * @returns True if popup should be shown, false otherwise
+     * @private
+     */
+    private shouldShowPopup;
+    /**
+     * Marks a popup as shown by setting a cookie
+     * @param popupId - Unique popup identifier
+     * @private
+     */
+    private markPopupAsShown;
     /**
      * Creates a new Embedder instance with optional initial widget configuration
      * @param config - Initial widget configuration (optional)
@@ -43,14 +58,20 @@ export declare class Embedder {
      * @param ifId - The unique identifier for the interactive form
      * @param width - The width of the iframe (default: '614px')
      * @param height - The height of the iframe (default: '300px')
+     * @param iframeSrc - The base URL for the iframe (optional)
      * @returns HTMLIFrameElement - The created iframe element
      */
-    static createInlineWidget(ifId: string, width?: string, height?: string): HTMLIFrameElement;
+    static createInlineWidget(ifId: string, width?: string, height?: string, iframeSrc?: string): HTMLIFrameElement;
     /**
      * Processes widgets from the global ifLayer array
      * @private
      */
     private processWidgetLayer;
+    /**
+     * Sets up a watcher for changes to the global ifLayer array
+     * @private
+     */
+    private setupIfLayerWatcher;
     /**
      * Initializes a specific widget based on its configuration
      * @param config - Widget configuration object
@@ -86,6 +107,7 @@ export declare class Embedder {
      * @param ifId - The unique identifier for the interactive form
      * @param width - The width of the iframe (CSS units supported)
      * @param height - The height of the iframe (CSS units supported)
+     * @param iframeSrc - The base URL for the iframe (optional)
      * @returns HTMLIFrameElement - The configured iframe element
      * @private
      */
