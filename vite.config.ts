@@ -33,8 +33,8 @@ export default defineConfig({
     minify: true,
     lib: {
       entry: 'src/index.ts',
-      name: 'InteractiveFormEmbedder',
-      fileName: (format) => (format === 'umd' ? 'index.js' : `index.${format}.js`),
+      name: 'InteractiveFormEmbed',
+      fileName: (format) => (format === 'umd' ? 'embed.js' : `embed.${format}.js`),
       formats: ['umd', 'es'],
     },
   },
