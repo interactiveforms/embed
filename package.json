@@ -6,13 +6,6 @@
     "node": ">=22",
     "pnpm": ">=10"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.es.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

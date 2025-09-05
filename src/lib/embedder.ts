@@ -92,85 +92,6 @@ export class Embedder {
   }
 
   /**
-   * Removes a widget by its ID and type
-   * @param id - Widget identifier
-   * @param type - Widget type
-   */
-  public removeWidget(id: string, type: string): void {
-    if (type === 'page-body') {
-      const keysToRemove: string[] = [];
-      this.widgets.forEach((widget, key) => {
-        if (widget.id === id && widget.type === type) {
-          keysToRemove.push(key);
-        }
-      });
-
-      keysToRemove.forEach((key) => {
-        const widget = this.widgets.get(key);
-        if (widget) {
-          this.destroyWidget(widget);
-          this.widgets.delete(key);
-        }
-      });
-    } else {
-      const widgetKey = `${id}-${type}`;
-      const widget = this.widgets.get(widgetKey);
-      if (widget) {
-        this.destroyWidget(widget);
-        this.widgets.delete(widgetKey);
-      }
-    }
-  }
-
-  /**
-   * Forces reinitialization of all widgets
-   */
-  public reinitialize(): void {
-    this.widgets.forEach((widget) => {
-      this.destroyWidget(widget);
-    });
-    this.widgets.forEach((widget) => {
-      this.initializeWidget(widget);
-    });
-  }
-
-  /**
-   * Creates a page-body widget at the current script location without requiring a container div
-   * This method can be called directly from a script tag to embed the widget inline
-   * @param ifId - The unique identifier for the interactive form
-   * @param width - The width of the iframe (default: '614px')
-   * @param height - The height of the iframe (default: '300px')
-   * @param iframeSrc - The base URL for the iframe (optional)
-   * @returns HTMLIFrameElement - The created iframe element
-   */
-  public static createInlineWidget(
-    ifId: string,
-    width: string = '614px',
-    height: string = '300px',
-    iframeSrc?: string,
-  ): HTMLIFrameElement {
-    const iframe = document.createElement('iframe');
-    const baseUrl = iframeSrc || 'https://if-form-staging.up.railway.app';
-    iframe.src = `${baseUrl}/${ifId}`;
-    iframe.width = width;
-    iframe.height = height;
-    iframe.style.maxWidth = '100%';
-    iframe.style.width = width;
-    iframe.style.height = height;
-    iframe.style.border = 'none';
-    iframe.setAttribute('data-widget-id', ifId);
-
-    const script = document.currentScript;
-    if (script && script.parentNode) {
-      script.parentNode.insertBefore(iframe, script);
-    } else {
-      document.body.appendChild(iframe);
-    }
-
-    return iframe;
-  }
-
-  /**
    * Processes widgets from the global ifLayer array
    * @private
    */
@@ -240,18 +161,6 @@ export class Embedder {
   }
 
   /**
-   * Destroys a widget and removes its DOM elements
-   * @param config - Widget configuration object
-   * @private
-   */
-  private destroyWidget(config: WidgetConfig): void {
-    const existingElements = document.querySelectorAll(`[data-widget-id="${config.id}"]`);
-    existingElements.forEach((element) => {
-      element.remove();
-    });
-  }
-
-  /**
    * Creates a page-body type embed by inserting an iframe into the specified container
    * @param config - Widget configuration object
    * @private
@@ -268,7 +177,7 @@ export class Embedder {
       return;
     }
 
-    const iframe = this.createIframe(config.id, '614px', '300px', config.iframeSrc);
+    const iframe = this.createIframe(config.id, '614px', '300px', import.meta.env['VITE_FORM_URL']);
     iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
       element.appendChild(iframe);
@@ -365,7 +274,7 @@ export class Embedder {
       closeButton.style.background = 'transparent';
     });
 
-    const iframe = this.createIframe(config.id, '614px', '300px', config.iframeSrc);
+    const iframe = this.createIframe(config.id, '614px', '300px', import.meta.env['VITE_FORM_URL']);
 
     iframeContainer.appendChild(closeButton);
     iframeContainer.appendChild(iframe);
@@ -448,7 +357,12 @@ export class Embedder {
         closeButton.style.background = 'transparent';
       });
 
-      const iframe = this.createIframe(config.id, '614px', '300px', config.iframeSrc);
+      const iframe = this.createIframe(
+        config.id,
+        '614px',
+        '300px',
+        import.meta.env['VITE_FORM_URL'],
+      );
 
       modalContent.appendChild(closeButton);
       modalContent.appendChild(iframe);

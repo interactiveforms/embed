@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     dts({
       entryRoot: 'src',
-      tsconfigPath: path.resolve('tsconfig.lib.json'),
+      tsconfigPath: path.resolve('tsconfig.json'),
     }),
   ],
   // Dev server configuration
@@ -35,7 +35,7 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: 'InteractiveFormEmbed',
       fileName: (format) => (format === 'umd' ? 'embed.js' : `embed.${format}.js`),
-      formats: ['umd', 'es'],
+      formats: ['umd'],
     },
   },
 });
