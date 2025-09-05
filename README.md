@@ -1,274 +1,256 @@
-# InteractiveForm Embedder
+# Interactive Form Embedder
 
-A library for embedding interactive forms and widgets on your website.
+A library for embedding interactive forms on websites. Supports three types of widgets: container embedding, floating button, and pop-up modal.
 
 ## Installation
 
-**Recommendation:** For better performance, include the script in `<head>` with the `async` attribute and place it before elements with data attributes.
+### 1. Script Integration
 
-### Via CDN (unpkg)
-
-**UMD (recommended for CDN):**
+Add the following script to the `<head>` of your HTML page:
 
 ```html
-<script async src="https://unpkg.com/interactiveform-embedder@latest/dist/index.js"></script>
+<script src="https://widgets.interactiveform.com/embed.js"></script>
 ```
 
-**ESM:**
+### 2. Automatic Initialization
+
+After adding the script, the library automatically initializes and processes all widgets defined through data attributes or the global `window.ifLayer` array.
+
+## Usage Methods
+
+### Method 1: Data Attributes (Recommended)
+
+The simplest way is to use data attributes in HTML:
+
+#### Container Embedding (page-body)
 
 ```html
-<script
-  type="module"
-  src="https://unpkg.com/interactiveform-embedder@latest/dist/index.es.js"
-></script>
+<div data-if-id="your-form-id" data-if-type="page-body"></div>
 ```
 
-**Dynamic loading via JavaScript:**
+#### Floating Button (float-button)
 
 ```html
-<script>
-  // Load script in head with async
-  const script = document.createElement('script');
-  script.src = 'https://unpkg.com/interactiveform-embedder@latest/dist/index.js';
-  script.async = true;
-  document.head.appendChild(script);
-</script>
+<div data-if-id="your-form-id" data-if-type="float-button"></div>
 ```
 
-### Via npm
-
-```bash
-npm install interactiveform-embedder
-```
-
-### Via pnpm (recommended)
-
-```bash
-pnpm install interactiveform-embedder
-```
-
-## Usage
-
-### Automatic initialization via data attributes (CDN)
-
-After loading the script, the library automatically initializes widgets from elements with data attributes. **Data attributes are automatically removed after initialization to prevent re-initialization.**
+#### Pop-up Modal (pop-up)
 
 ```html
-<!-- Page body widget - the div itself becomes the container -->
-<div data-if-id="my-form" data-if-type="page-body"></div>
-
-<!-- Multiple page-body widgets with the same ID are supported -->
-<div data-if-id="my-form" data-if-type="page-body"></div>
-
-<!-- Float button widget -->
-<div data-if-id="my-form" data-if-type="float-button"></div>
-
-<!-- Pop-up widget with timeout -->
-<div data-if-id="my-form" data-if-type="pop-up" data-if-timeout="10"></div>
-
-<!-- Widget with custom iframe source -->
-<div
-  data-if-id="my-form"
-  data-if-type="page-body"
-  data-if-iframe-src="https://custom-domain.com"
-></div>
-
-<!-- Custom tags (Wix, etc.) are also supported -->
-<form-container data-if-id="my-form" data-if-type="page-body"></form-container>
+<div data-if-id="your-form-id" data-if-type="pop-up" data-if-timeout="5"></div>
 ```
 
-### Automatic initialization via ifLayer (CDN)
-
-The library also automatically processes widgets from `window.ifLayer`:
+### Method 2: Global ifLayer Array
 
 ```html
 <script>
   window.ifLayer = window.ifLayer || [];
   window.ifLayer.push({
-    id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
+    id: 'your-form-id',
     type: 'page-body',
-    container: '#form-container',
-  });
-  window.ifLayer.push({
-    id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
-    type: 'float-button',
-  });
-  window.ifLayer.push({
-    id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
-    type: 'pop-up',
-    timeout: 10,
-  });
-  window.ifLayer.push({
-    id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
-    type: 'page-body',
-    container: '#form-container',
-    iframeSrc: 'https://custom-domain.com',
+    container: '.my-container',
   });
 </script>
 ```
 
-### Manual initialization (npm/ESM)
+### Method 3: Programmatic Creation
 
-```ts
-import { Embedder } from 'interactiveform-embedder';
+```javascript
+// Get embedder instance
+const embedder = window.InteractiveFormEmbed.getInstance();
 
-// Create instance with configuration
-const embedder = new Embedder({
-  id: 'my-form',
-  type: 'page-body',
-  container: '#form-container',
-});
-
-// Or create empty instance
-const embedder = new Embedder();
-
-// Add widgets
+// Add widget
 embedder.addWidget({
-  id: 'my-form',
-  type: 'page-body',
-  container: '#form-container',
-});
-
-embedder.addWidget({
-  id: 'my-form',
+  id: 'your-form-id',
   type: 'float-button',
 });
-
-embedder.addWidget({
-  id: 'my-form',
-  type: 'pop-up',
-  timeout: 10,
-});
-
-embedder.addWidget({
-  id: 'my-form',
-  type: 'page-body',
-  container: '#form-container',
-  iframeSrc: 'https://custom-domain.com',
-});
-
-// Remove widget
-embedder.removeWidget('my-form', 'float-button');
-
-// Reinitialize all widgets
-embedder.reinitialize();
-
-// Use singleton
-const embedder = Embedder.getInstance();
 ```
-
-### Inline widget without container
-
-```html
-<script>
-  Embedder.createInlineWidget('my-form', '800px', '400px');
-  // With custom iframe source
-  Embedder.createInlineWidget('my-form', '800px', '400px', 'https://custom-domain.com');
-</script>
-```
-
-## Widget Types
-
-- **`page-body`** — embeds in specified container (can have multiple instances with the same ID)
-- **`float-button`** — floating button with dropdown iframe (unique per ID)
-- **`pop-up`** — modal window with delay (unique per ID, optional `timeout` in seconds, shown only once per day)
-
-## Data Attributes
-
-- **`data-if-id`** — unique widget identifier (required)
-- **`data-if-type`** — widget type: `page-body`, `float-button`, `pop-up`
-- **`data-if-timeout`** — delay for pop-up in seconds (optional)
-- **`data-if-iframe-src`** — custom iframe source URL (optional, defaults to `https://if-form-staging.up.railway.app`)
-
-**Note:** All data attributes are automatically removed after widget initialization to prevent re-initialization. This works with any HTML elements including custom tags like `<form-container>` (Wix compatibility).
-
-**Multiple instances:** You can have multiple `page-body` widgets with the same ID on the same page. Other widget types (`float-button`, `pop-up`) remain unique per ID.
-
-**Popup behavior:** Pop-up widgets are shown only once per day per unique ID. After showing, a cookie `if-popup-{id}` is set for 1 day to prevent repeated displays.
 
 ## Widget Configuration
 
-```ts
-interface WidgetConfig {
-  id: string; // Unique identifier
-  type: 'page-body' | 'float-button' | 'pop-up';
-  timeout?: number; // Delay for pop-up (in seconds)
-  container?: string; // CSS selector for page-body
-  iframeSrc?: string; // Custom iframe source URL (defaults to https://if-form-staging.up.railway.app)
-}
-```
+### Configuration Parameters
 
-## Build Formats
+| Parameter   | Type   | Required      | Description                                              |
+| ----------- | ------ | ------------- | -------------------------------------------------------- |
+| `id`        | string | ✅            | Unique form identifier                                   |
+| `type`      | string | ✅            | Widget type: `'page-body'`, `'float-button'`, `'pop-up'` |
+| `container` | string | For page-body | CSS selector for the container to embed into             |
+| `timeout`   | number | No            | Pop-up display delay in seconds (default: 3)             |
 
-- **UMD** — universal module for CDN and direct inclusion via `<script>` (minified, main file `index.js`)
-- **ES** — for modern bundlers and `<script type="module">` (minified, file `index.es.js`)
+### Widget Types
 
-## Usage Examples
+#### 1. Page Body - Container Embedding
 
-### Data attributes approach
+Embeds the form iframe into the specified container on the page.
 
 ```html
-<!-- Include script in head with async -->
-<script async src="https://unpkg.com/interactiveform-embedder@latest/dist/index.js"></script>
-
-<!-- Multiple page-body widgets with the same ID are allowed -->
-<div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="page-body"></div>
-<div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="page-body"></div>
-
-<!-- Other widget types remain unique per ID -->
-<div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="float-button"></div>
-<div data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx" data-if-type="pop-up" data-if-timeout="10"></div>
-
-<!-- With custom iframe source -->
-<div
-  data-if-id="xxxxxxxxxxxxxxxxxxxxxxxx"
-  data-if-type="page-body"
-  data-if-iframe-src="https://custom-domain.com"
-></div>
+<!-- HTML -->
+<div class="form-container" data-if-id="contact-form" data-if-type="page-body"></div>
 ```
 
-````
-
-### GTM-like approach with ifLayer
-
-```html
-<!-- Include script in head with async -->
-<script async src="https://unpkg.com/interactiveform-embedder@latest/dist/index.js"></script>
-
-<script>
-  window.ifLayer = window.ifLayer || [];
-  window.ifLayer.push({
-    id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
-    type: 'page-body',
-    container: '#form-container',
-  });
-</script>
-````
-
-### Programmatic creation
-
-```ts
-import { Embedder } from 'interactiveform-embedder';
-
-const embedder = new Embedder();
+```javascript
+// JavaScript
 embedder.addWidget({
-  id: 'xxxxxxxxxxxxxxxxxxxxxxxx',
+  id: 'contact-form',
   type: 'page-body',
-  container: '#form-container',
+  container: '.form-container',
 });
 ```
 
-### Inline insertion
+#### 2. Float Button - Floating Button
+
+Creates a fixed-position button in the bottom-right corner with a dropdown iframe.
 
 ```html
-<script>
-  Embedder.createInlineWidget('xxxxxxxxxxxxxxxxxxxxxxxx', '800px', '400px');
-  // With custom iframe source
-  Embedder.createInlineWidget(
-    'xxxxxxxxxxxxxxxxxxxxxxxx',
-    '800px',
-    '400px',
-    'https://custom-domain.com',
-  );
-</script>
+<!-- HTML -->
+<div data-if-id="support-form" data-if-type="float-button"></div>
+```
+
+```javascript
+// JavaScript
+embedder.addWidget({
+  id: 'support-form',
+  type: 'float-button',
+});
+```
+
+**Features:**
+
+- Button has attention-grabbing animation
+- Animation stops on hover
+- iframe appears on button click
+- Has close button
+
+#### 3. Pop-up - Modal Window
+
+Shows a modal window with the form after a specified time.
+
+```html
+<!-- HTML -->
+<div data-if-id="newsletter-form" data-if-type="pop-up" data-if-timeout="5"></div>
+```
+
+```javascript
+// JavaScript
+embedder.addWidget({
+  id: 'newsletter-form',
+  type: 'pop-up',
+  timeout: 5, // seconds
+});
+```
+
+**Features:**
+
+- Shows only once (uses cookies)
+- Can be closed by clicking background or close button
+- Has smooth appearance animations
+
+## Usage Examples
+
+### Simple Contact Form
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://widgets.interactiveform.com/embed.js"></script>
+  </head>
+  <body>
+    <h1>Our Company</h1>
+
+    <!-- Contact form embeds here -->
+    <div class="contact-section">
+      <h2>Contact Us</h2>
+      <div data-if-id="contact-form-123" data-if-type="page-body"></div>
+    </div>
+
+    <!-- Floating support button -->
+    <div data-if-id="support-form-456" data-if-type="float-button"></div>
+  </body>
+</html>
+```
+
+### Multiple Forms
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://widgets.interactiveform.com/embed.js"></script>
+  </head>
+  <body>
+    <!-- Multiple forms on one page -->
+    <div class="hero-section">
+      <div data-if-id="hero-form-1" data-if-type="page-body"></div>
+    </div>
+
+    <div class="features-section">
+      <div data-if-id="demo-form-2" data-if-type="page-body"></div>
+    </div>
+
+    <!-- Floating button -->
+    <div data-if-id="support-form-3" data-if-type="float-button"></div>
+
+    <!-- Pop-up for new visitors -->
+    <div data-if-id="welcome-form-4" data-if-type="pop-up" data-if-timeout="5"></div>
+  </body>
+</html>
+```
+
+## Technical Details
+
+### Automatic Initialization
+
+The library automatically initializes on DOM load and processes:
+
+- Elements with data attributes `data-if-*`
+- Elements in the global `window.ifLayer` array
+- Dynamically added elements
+
+### State Management
+
+- **Pop-up widgets** use cookies to track display status
+- **Page-body widgets** can be created multiple times with unique keys
+- **Float-button widgets** are created only once per page
+
+### Styling
+
+The library adds its own styles for widgets. For customization, use CSS:
+
+```css
+/* Customize floating button */
+[data-widget-id='your-form-id'] {
+  /* your styles */
+}
+
+/* Customize iframe */
+[data-widget-id='your-form-id'] iframe {
+  /* your styles */
+}
+```
+
+## Browser Support
+
+The library supports all modern browsers with support for:
+
+- ES6+ (Proxy, Map, Set)
+- CSS Grid and Flexbox
+- HTML5 data attributes
+
+## Development
+
+For local development and testing:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start dev server
+pnpm dev
+
+# Build
+pnpm build
+
+# Preview
+pnpm preview
 ```

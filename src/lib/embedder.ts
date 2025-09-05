@@ -6,7 +6,6 @@ export interface WidgetConfig {
   type: 'page-body' | 'float-button' | 'pop-up';
   timeout?: number;
   container?: string;
-  iframeSrc?: string;
 }
 
 declare global {
@@ -177,7 +176,7 @@ export class Embedder {
       return;
     }
 
-    const iframe = this.createIframe(config.id, '614px', '300px', import.meta.env['VITE_FORM_URL']);
+    const iframe = this.createIframe(config.id, '614px', '300px');
     iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
       element.appendChild(iframe);
@@ -274,7 +273,7 @@ export class Embedder {
       closeButton.style.background = 'transparent';
     });
 
-    const iframe = this.createIframe(config.id, '614px', '300px', import.meta.env['VITE_FORM_URL']);
+    const iframe = this.createIframe(config.id, '614px', '300px');
 
     iframeContainer.appendChild(closeButton);
     iframeContainer.appendChild(iframe);
@@ -303,7 +302,7 @@ export class Embedder {
       return;
     }
 
-    const timeoutMs = config.timeout ? config.timeout * 1000 : 3000;
+    const timeoutMs = config.timeout ? config.timeout * 1000 : 5000;
 
     setTimeout(() => {
       const modal = document.createElement('div');
@@ -357,12 +356,7 @@ export class Embedder {
         closeButton.style.background = 'transparent';
       });
 
-      const iframe = this.createIframe(
-        config.id,
-        '614px',
-        '300px',
-        import.meta.env['VITE_FORM_URL'],
-      );
+      const iframe = this.createIframe(config.id, '614px', '300px');
 
       modalContent.appendChild(closeButton);
       modalContent.appendChild(iframe);
@@ -402,18 +396,12 @@ export class Embedder {
    * @param ifId - The unique identifier for the interactive form
    * @param width - The width of the iframe (CSS units supported)
    * @param height - The height of the iframe (CSS units supported)
-   * @param iframeSrc - The base URL for the iframe (optional)
    * @returns HTMLIFrameElement - The configured iframe element
    * @private
    */
-  private createIframe(
-    ifId: string,
-    width: string,
-    height: string,
-    iframeSrc?: string,
-  ): HTMLIFrameElement {
+  private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
-    const baseUrl = iframeSrc || 'https://if-form-staging.up.railway.app';
+    const baseUrl = import.meta.env['VITE_FORM_URL'] || 'https://if-form-staging.up.railway.app';
     iframe.src = `${baseUrl}/${ifId}`;
     iframe.width = width;
     iframe.height = height;
@@ -437,28 +425,23 @@ export class Embedder {
       if (widgetId) {
         const widgetType = element.getAttribute('data-if-type');
         const widgetTimeout = element.getAttribute('data-if-timeout');
-        const widgetIframeSrc = element.getAttribute('data-if-iframe-src');
-
         let config: WidgetConfig;
         if (widgetType === 'page-body') {
           config = {
             id: widgetId,
             type: 'page-body',
             container: `[data-if-id="${widgetId}"][data-if-type="page-body"]`,
-            iframeSrc: widgetIframeSrc || undefined,
           };
         } else if (widgetType === 'float-button') {
           config = {
             id: widgetId,
             type: 'float-button',
-            iframeSrc: widgetIframeSrc || undefined,
           };
         } else if (widgetType === 'pop-up') {
           config = {
             id: widgetId,
             type: 'pop-up',
             timeout: Number(widgetTimeout || 10),
-            iframeSrc: widgetIframeSrc || undefined,
           };
         } else {
           console.warn(`Unknown widget type for data-if-id: ${widgetId}`);
@@ -470,7 +453,6 @@ export class Embedder {
         element.removeAttribute('data-if-id');
         element.removeAttribute('data-if-type');
         element.removeAttribute('data-if-timeout');
-        element.removeAttribute('data-if-iframe-src');
       }
     });
   }
