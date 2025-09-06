@@ -204,9 +204,8 @@ export class Embedder {
     button.style.height = '54px';
     button.style.padding = '0';
     button.style.position = 'fixed';
-    button.style.bottom = '0';
-    button.style.right = '0';
-    button.style.margin = '20px';
+    button.style.bottom = '20px';
+    button.style.right = '20px';
     button.style.zIndex = '10000';
     button.style.color = 'white';
     button.style.border = 'none';
@@ -236,22 +235,23 @@ export class Embedder {
 
     button.addEventListener('mouseenter', () => {
       button.style.transform = 'translateY(-2px)';
-      button.style.animation = 'none';
+      // button.style.animation = 'none';
     });
 
     button.addEventListener('mouseleave', () => {
-      button.style.transform = 'scale(1)';
-      button.style.animation = 'ifScale 5s infinite';
+      button.style.transform = 'translateY(0)';
+      // button.style.animation = 'ifScale 5s infinite';
     });
 
     const iframeContainer = document.createElement('div');
     iframeContainer.style.position = 'fixed';
     iframeContainer.style.bottom = '90px';
     iframeContainer.style.right = '20px';
+    iframeContainer.style.maxWidth = 'calc(100% - 40px)';
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
     iframeContainer.style.background = 'white';
-    iframeContainer.style.borderRadius = '8px';
+    iframeContainer.style.borderRadius = '24px';
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
@@ -260,17 +260,15 @@ export class Embedder {
 
     button.addEventListener('click', () => {
       if (!isOpen) {
-        // Open iframe and change button to close icon
         iframeContainer.style.display = 'block';
         button.innerHTML = closeContent;
-        button.style.animation = 'none';
-        button.style.transform = 'scale(1)';
+        // button.style.animation = 'none';
+        // button.style.transform = 'scale(1)';
         isOpen = true;
       } else {
-        // Close iframe and change button back to original icon
         iframeContainer.style.display = 'none';
         button.innerHTML = logoButton;
-        button.style.animation = 'ifScale 5s infinite';
+        // button.style.animation = 'ifScale 5s infinite';
         isOpen = false;
       }
     });
@@ -396,6 +394,7 @@ export class Embedder {
     iframe.style.width = width;
     iframe.style.height = height;
     iframe.style.border = 'none';
+    iframe.style.borderRadius = '24px';
     return iframe;
   }
 
