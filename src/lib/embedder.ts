@@ -252,7 +252,6 @@ export class Embedder {
     iframeContainer.style.display = 'none';
     iframeContainer.style.background = 'white';
     iframeContainer.style.borderRadius = '8px';
-    iframeContainer.style.padding = '12px';
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
