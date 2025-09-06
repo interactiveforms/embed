@@ -373,6 +373,7 @@ export class Embedder {
     iframe.style.height = height;
     iframe.style.border = 'none';
     iframe.style.borderRadius = '24px';
+    iframe.style.display = 'block';
     return iframe;
   }
 
