@@ -212,42 +212,23 @@ export class Embedder {
     button.style.cursor = 'pointer';
     button.style.backgroundColor = 'transparent';
     button.style.transition = 'all 0.3s ease';
-    // button.style.animation = 'ifScale 5s infinite';
     button.setAttribute('data-widget-id', config.id);
-
-    // const scaleStyle = document.createElement('style');
-    // scaleStyle.textContent = `
-    //   @keyframes ifScale {
-    //     0%, 80%, 100% {
-    //       transform: scale(1);
-    //     }
-    //     20% {
-    //       transform: scale(1.1);
-    //     }
-    //     40% {
-    //       transform: scale(1.05);
-    //     }
-    //   }
-    // `;
-    // document.head.appendChild(scaleStyle);
 
     let isOpen = false;
 
     button.addEventListener('mouseenter', () => {
       button.style.transform = 'translateY(-2px)';
-      // button.style.animation = 'none';
     });
 
     button.addEventListener('mouseleave', () => {
       button.style.transform = 'translateY(0)';
-      // button.style.animation = 'ifScale 5s infinite';
     });
 
     const iframeContainer = document.createElement('div');
     iframeContainer.style.position = 'fixed';
     iframeContainer.style.bottom = '90px';
     iframeContainer.style.right = '20px';
-    iframeContainer.style.maxWidth = 'calc(100% - 40px)';
+    iframeContainer.style.maxWidth = 'calc(100% - 40px)!important';
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
     iframeContainer.style.background = 'white';
@@ -262,13 +243,10 @@ export class Embedder {
       if (!isOpen) {
         iframeContainer.style.display = 'block';
         button.innerHTML = closeContent;
-        // button.style.animation = 'none';
-        // button.style.transform = 'scale(1)';
         isOpen = true;
       } else {
         iframeContainer.style.display = 'none';
         button.innerHTML = logoButton;
-        // button.style.animation = 'ifScale 5s infinite';
         isOpen = false;
       }
     });
