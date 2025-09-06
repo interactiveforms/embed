@@ -228,7 +228,7 @@ export class Embedder {
     iframeContainer.style.position = 'fixed';
     iframeContainer.style.bottom = '90px';
     iframeContainer.style.right = '20px';
-    iframeContainer.style.maxWidth = 'calc(100% - 40px)!important';
+    iframeContainer.style.maxWidth = 'calc(100% - 40px) !important';
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
     iframeContainer.style.background = 'white';
