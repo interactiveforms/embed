@@ -190,15 +190,23 @@ export class Embedder {
    */
   private createFloatButtonEmbed(config: WidgetConfig): void {
     const button = document.createElement('button');
-    button.innerHTML = `
+    
+    const logoButton = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
     `;
+    
+    const closeContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path d="M18 18L36 36M18 36L36 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    `;
+    
+    button.innerHTML = logoButton;
     button.style.width = '54px';
     button.style.height = '54px';
     button.style.padding = '0';
     button.style.position = 'fixed';
-    button.style.bottom = '20px';
-    button.style.right = '20px';
+    button.style.bottom = '0';
+    button.style.right = '0';
+    button.style.margin = '20px';
     button.style.zIndex = '10000';
     button.style.color = 'white';
     button.style.border = 'none';
@@ -224,6 +232,8 @@ export class Embedder {
     `;
     document.head.appendChild(scaleStyle);
 
+    let isOpen = false;
+
     button.addEventListener('mouseenter', () => {
       button.style.transform = 'translateY(-2px)';
       button.style.animation = 'none';
@@ -246,46 +256,24 @@ export class Embedder {
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = '&times;';
-    closeButton.style.position = 'absolute';
-    closeButton.style.top = '5px';
-    closeButton.style.right = '5px';
-    closeButton.style.background = 'none';
-    closeButton.style.border = 'none';
-    closeButton.style.fontSize = '24px';
-    closeButton.style.cursor = 'pointer';
-    closeButton.style.color = '#666';
-    closeButton.style.lineHeight = '1';
-    closeButton.style.width = '30px';
-    closeButton.style.height = '30px';
-    closeButton.style.display = 'flex';
-    closeButton.style.alignItems = 'center';
-    closeButton.style.justifyContent = 'center';
-    closeButton.style.borderRadius = '50%';
-    closeButton.style.transition = 'background-color 0.2s ease';
-
-    closeButton.addEventListener('mouseenter', () => {
-      closeButton.style.background = '#f0f0f0';
-    });
-
-    closeButton.addEventListener('mouseleave', () => {
-      closeButton.style.background = 'transparent';
-    });
-
     const iframe = this.createIframe(config.id, '614px', '300px');
-
-    iframeContainer.appendChild(closeButton);
     iframeContainer.appendChild(iframe);
 
     button.addEventListener('click', () => {
-      iframeContainer.style.display = 'block';
-      button.style.animation = 'none';
-    });
-
-    closeButton.addEventListener('click', () => {
-      iframeContainer.style.display = 'none';
-      button.style.animation = 'ifScale 5s infinite';
+      if (!isOpen) {
+        // Open iframe and change button to close icon
+        iframeContainer.style.display = 'block';
+        button.innerHTML = closeContent;
+        button.style.animation = 'none';
+        button.style.transform = 'scale(1)';
+        isOpen = true;
+      } else {
+        // Close iframe and change button back to original icon
+        iframeContainer.style.display = 'none';
+        button.innerHTML = logoButton;
+        button.style.animation = 'ifScale 5s infinite';
+        isOpen = false;
+      }
     });
 
     document.body.appendChild(button);
