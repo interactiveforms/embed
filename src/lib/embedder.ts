@@ -213,24 +213,24 @@ export class Embedder {
     button.style.cursor = 'pointer';
     button.style.backgroundColor = 'transparent';
     button.style.transition = 'all 0.3s ease';
-    button.style.animation = 'ifScale 5s infinite';
+    // button.style.animation = 'ifScale 5s infinite';
     button.setAttribute('data-widget-id', config.id);
 
-    const scaleStyle = document.createElement('style');
-    scaleStyle.textContent = `
-      @keyframes ifScale {
-        0%, 80%, 100% {
-          transform: scale(1);
-        }
-        20% {
-          transform: scale(1.1);
-        }
-        40% {
-          transform: scale(1.05);
-        }
-      }
-    `;
-    document.head.appendChild(scaleStyle);
+    // const scaleStyle = document.createElement('style');
+    // scaleStyle.textContent = `
+    //   @keyframes ifScale {
+    //     0%, 80%, 100% {
+    //       transform: scale(1);
+    //     }
+    //     20% {
+    //       transform: scale(1.1);
+    //     }
+    //     40% {
+    //       transform: scale(1.05);
+    //     }
+    //   }
+    // `;
+    // document.head.appendChild(scaleStyle);
 
     let isOpen = false;
 
