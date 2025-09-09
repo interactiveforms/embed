@@ -170,7 +170,7 @@ export class Embedder {
       return;
     }
 
-    const containerElement = document.querySelectorAll(config.container);
+    const containerElement: HTMLElement[] = Array.from(document.querySelectorAll(config.container));
     if (containerElement.length === 0) {
       console.error(`Container element not found for selector: ${config.container}`);
       return;
@@ -179,6 +179,13 @@ export class Embedder {
     const iframe = this.createIframe(config.id, '614px', '300px');
     iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
+      element.style.textAlign = 'center';
+      element.style.backgroundColor = '#ffffff';
+      element.style.borderRadius = '12px';
+      element.style.overflow = 'hidden';
+      element.style.display = 'inline-flex';
+      element.style.justifyContent = 'center';
+      element.style.alignItems = 'center';
       element.appendChild(iframe);
     });
   }
@@ -190,15 +197,15 @@ export class Embedder {
    */
   private createFloatButtonEmbed(config: WidgetConfig): void {
     const button = document.createElement('button');
-    
+
     const logoButton = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
     `;
-    
+
     const closeContent = `
       <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path d="M18 18L36 36M18 36L36 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     `;
-    
+
     button.innerHTML = logoButton;
     button.style.width = '54px';
     button.style.height = '54px';
@@ -232,7 +239,8 @@ export class Embedder {
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
     iframeContainer.style.background = 'white';
-    iframeContainer.style.borderRadius = '24px';
+    iframeContainer.style.borderRadius = '12px';
+    iframeContainer.style.overflow = 'hidden';
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
@@ -372,7 +380,6 @@ export class Embedder {
     iframe.style.width = width;
     iframe.style.height = height;
     iframe.style.border = 'none';
-    iframe.style.borderRadius = '24px';
     iframe.style.display = 'block';
     return iframe;
   }
