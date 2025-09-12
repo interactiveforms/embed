@@ -192,11 +192,11 @@ export class Embedder {
     const button = document.createElement('button');
 
     const logoButton = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="${COLORS.primary}"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="${COLORS.white}"/><rect x="9" y="19" width="13" height="2" fill="${COLORS.white}"/><rect x="32" y="19" width="13" height="2" fill="${COLORS.white}"/><rect x="32" y="12" width="2" height="8" fill="${COLORS.white}"/><rect x="37" y="14" width="2" height="6" fill="${COLORS.white}"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1176 28C11.1176 36.2843 18.2284 43 27 43C35.7716 43 42.8824 36.2843 42.8824 28H45C45 37.3888 36.9411 45 27 45C17.0589 45 9 37.3888 9 28H11.1176Z" fill="white"/><rect x="9" y="19" width="13" height="2" fill="white"/><rect x="32" y="19" width="13" height="2" fill="white"/><rect x="32" y="12" width="2" height="8" fill="white"/><rect x="37" y="14" width="2" height="6" fill="white"/></svg>
     `;
 
     const closeContent = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="${COLORS.primary}"/><path d="M18 18L36 36M18 36L36 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none"><rect width="54" height="54" rx="16" fill="#312DF6"/><path d="M18 18L36 36M18 36L36 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     `;
 
     button.innerHTML = logoButton;
