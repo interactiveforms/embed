@@ -231,6 +231,7 @@ export class Embedder {
     iframeContainer.style.setProperty('max-width', 'calc(100% - 40px)', 'important');
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
+    iframeContainer.style.overflow = 'hidden';
     iframeContainer.style.borderRadius = '24px';
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
