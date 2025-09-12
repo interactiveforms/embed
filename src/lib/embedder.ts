@@ -18,9 +18,15 @@ if (typeof window !== 'undefined') {
   window.ifLayer = window.ifLayer || [];
 }
 
+const COLORS = {
+  primary: '#312DF6',
+  white: '#ffffff',
+  black: '#000000',
+  lightGray: '#e0e0e0',
+};
+
 export class Embedder {
   private readonly widgets: Map<string, WidgetConfig> = new Map();
-  private static instance: Embedder | null = null;
   private ifLayerProxy: WidgetConfig[] | null = null;
 
   /**
@@ -57,17 +63,6 @@ export class Embedder {
     this.setupIfLayerWatcher();
 
     this.initializeDataAttributeWidgets();
-  }
-
-  /**
-   * Gets or creates a singleton instance of Embedder
-   * @returns Embedder instance
-   */
-  public static getInstance(): Embedder {
-    if (!Embedder.instance) {
-      Embedder.instance = new Embedder();
-    }
-    return Embedder.instance;
   }
 
   /**
@@ -180,8 +175,6 @@ export class Embedder {
     iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
       element.style.textAlign = 'center';
-      element.style.backgroundColor = '#ffffff';
-      element.style.borderRadius = '12px';
       element.style.overflow = 'hidden';
       element.style.display = 'inline-flex';
       element.style.justifyContent = 'center';
@@ -214,7 +207,7 @@ export class Embedder {
     button.style.bottom = '20px';
     button.style.right = '20px';
     button.style.zIndex = '10000';
-    button.style.color = 'white';
+    button.style.color = COLORS.white;
     button.style.border = 'none';
     button.style.cursor = 'pointer';
     button.style.backgroundColor = 'transparent';
@@ -238,9 +231,8 @@ export class Embedder {
     iframeContainer.style.setProperty('max-width', 'calc(100% - 40px)', 'important');
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
-    iframeContainer.style.background = 'white';
-    iframeContainer.style.borderRadius = '12px';
     iframeContainer.style.overflow = 'hidden';
+    iframeContainer.style.borderRadius = '24px';
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
@@ -292,10 +284,7 @@ export class Embedder {
 
       const modalContent = document.createElement('div');
       modalContent.style.position = 'relative';
-      modalContent.style.background = 'white';
-      modalContent.style.borderRadius = '12px';
-      modalContent.style.padding = '20px';
-      modalContent.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.4)';
+      modalContent.style.borderRadius = '24px';
       modalContent.style.animation = 'ifSlideIn 0.3s ease';
       modalContent.style.maxWidth = '90vw';
       modalContent.style.maxHeight = '90vh';
@@ -303,13 +292,13 @@ export class Embedder {
       const closeButton = document.createElement('button');
       closeButton.innerHTML = '&times;';
       closeButton.style.position = 'absolute';
-      closeButton.style.top = '5px';
-      closeButton.style.right = '5px';
-      closeButton.style.background = 'none';
-      closeButton.style.border = 'none';
-      closeButton.style.fontSize = '28px';
+      closeButton.style.top = '-12px';
+      closeButton.style.right = '-12px';
+      closeButton.style.backgroundColor = COLORS.white;
+      closeButton.style.border = `1px solid ${COLORS.lightGray}`;
+      closeButton.style.fontSize = '20px';
       closeButton.style.cursor = 'pointer';
-      closeButton.style.color = '#666';
+      closeButton.style.color = COLORS.black;
       closeButton.style.lineHeight = '1';
       closeButton.style.width = '30px';
       closeButton.style.height = '30px';
@@ -317,20 +306,21 @@ export class Embedder {
       closeButton.style.alignItems = 'center';
       closeButton.style.justifyContent = 'center';
       closeButton.style.borderRadius = '50%';
-      closeButton.style.transition = 'background-color 0.2s ease';
+      closeButton.style.transition = 'all 0.2s ease';
+      closeButton.style.zIndex = '10003';
 
       closeButton.addEventListener('mouseenter', () => {
-        closeButton.style.background = '#f0f0f0';
+        closeButton.style.transform = 'scale(1.05)';
       });
 
       closeButton.addEventListener('mouseleave', () => {
-        closeButton.style.background = 'transparent';
+        closeButton.style.transform = 'scale(1)';
       });
 
       const iframe = this.createIframe(config.id, '614px', '300px');
 
-      modalContent.appendChild(closeButton);
       modalContent.appendChild(iframe);
+      modalContent.appendChild(closeButton);
       modal.appendChild(modalContent);
 
       const style = document.createElement('style');
@@ -376,6 +366,9 @@ export class Embedder {
     iframe.src = `${baseUrl}/${ifId}`;
     iframe.width = width;
     iframe.height = height;
+    iframe.style.backgroundColor = COLORS.white;
+    // iframe.style.borderRadius = '24px';
+    // iframe.style.overflow = 'hidden';
     iframe.style.maxWidth = '100%';
     iframe.style.width = width;
     iframe.style.height = height;

@@ -18,6 +18,7 @@ const config = {
     'prettier',
   ],
   rules: {
+    'no-unused-vars': 'error',
     'prettier/prettier': 'error',
   },
 };
