@@ -239,12 +239,18 @@ export class Embedder {
     const iframe = this.createIframe(config.id, '614px', '300px');
     iframeContainer.appendChild(iframe);
 
-    button.addEventListener('click', () => {
-      if (!isOpen) {
-        iframeContainer.style.display = 'block';
-        button.innerHTML = closeContent;
-        isOpen = true;
-      } else {
+    document.addEventListener('click', (e) => {
+      if (button.contains(e.target as Node)) {
+        if (!isOpen) {
+          iframeContainer.style.display = 'block';
+          button.innerHTML = closeContent;
+          isOpen = true;
+        } else {
+          iframeContainer.style.display = 'none';
+          button.innerHTML = logoButton;
+          isOpen = false;
+        }
+      } else if (isOpen && !iframeContainer.contains(e.target as Node)) {
         iframeContainer.style.display = 'none';
         button.innerHTML = logoButton;
         isOpen = false;
@@ -284,16 +290,20 @@ export class Embedder {
 
       const modalContent = document.createElement('div');
       modalContent.style.position = 'relative';
-      modalContent.style.borderRadius = '24px';
+      modalContent.style.padding = '12px';
       modalContent.style.animation = 'ifSlideIn 0.3s ease';
       modalContent.style.maxWidth = '90vw';
       modalContent.style.maxHeight = '90vh';
 
+      const iframeContainer = document.createElement('div');
+      iframeContainer.style.borderRadius = '24px';
+      iframeContainer.style.overflow = 'hidden';
+
       const closeButton = document.createElement('button');
       closeButton.innerHTML = '&times;';
       closeButton.style.position = 'absolute';
-      closeButton.style.top = '-12px';
-      closeButton.style.right = '-12px';
+      closeButton.style.top = '0';
+      closeButton.style.right = '0';
       closeButton.style.backgroundColor = COLORS.white;
       closeButton.style.border = `1px solid ${COLORS.lightGray}`;
       closeButton.style.fontSize = '20px';
@@ -319,7 +329,8 @@ export class Embedder {
 
       const iframe = this.createIframe(config.id, '614px', '300px');
 
-      modalContent.appendChild(iframe);
+      iframeContainer.appendChild(iframe);
+      modalContent.appendChild(iframeContainer);
       modalContent.appendChild(closeButton);
       modal.appendChild(modalContent);
 
