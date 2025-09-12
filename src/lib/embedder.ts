@@ -367,8 +367,8 @@ export class Embedder {
     iframe.width = width;
     iframe.height = height;
     iframe.style.backgroundColor = COLORS.white;
-    iframe.style.borderRadius = '24px';
-    iframe.style.overflow = 'hidden';
+    // iframe.style.borderRadius = '24px';
+    // iframe.style.overflow = 'hidden';
     iframe.style.maxWidth = '100%';
     iframe.style.width = width;
     iframe.style.height = height;
