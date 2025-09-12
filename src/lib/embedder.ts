@@ -174,9 +174,10 @@ export class Embedder {
     const iframe = this.createIframe(config.id, '614px', '300px');
     iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
+      element.style.width = '100%';
       element.style.textAlign = 'center';
       element.style.overflow = 'hidden';
-      element.style.display = 'inline-flex';
+      element.style.display = 'flex';
       element.style.justifyContent = 'center';
       element.style.alignItems = 'center';
       element.appendChild(iframe);
