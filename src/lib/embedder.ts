@@ -284,6 +284,7 @@ export class Embedder {
 
       const modalContent = document.createElement('div');
       modalContent.style.position = 'relative';
+      modalContent.style.borderRadius = '24px';
       modalContent.style.animation = 'ifSlideIn 0.3s ease';
       modalContent.style.maxWidth = '90vw';
       modalContent.style.maxHeight = '90vh';
