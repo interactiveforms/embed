@@ -376,11 +376,10 @@ export class Embedder {
     const iframe = document.createElement('iframe');
     const baseUrl = import.meta.env['VITE_FORM_URL'] || 'https://if-form-staging.up.railway.app';
     iframe.src = `${baseUrl}/${ifId}`;
-    iframe.width = width;
-    iframe.height = height;
-    iframe.style.backgroundColor = COLORS.white;
-    // iframe.style.borderRadius = '24px';
-    // iframe.style.overflow = 'hidden';
+    // iframe.width = width;
+    // iframe.height = height;
+    // iframe.style.back  groundColor = COLORS.white;
+    iframe.style.overflow = 'hidden';
     iframe.style.maxWidth = '100%';
     iframe.style.width = width;
     iframe.style.height = height;
