@@ -30,6 +30,38 @@ export class Embedder {
   private ifLayerProxy: WidgetConfig[] | null = null;
 
   /**
+   * Injects responsive CSS styles for float-button and pop-up widgets
+   * @private
+   */
+  private injectResponsiveStyles(): void {
+    if (document.getElementById('if-responsive-styles')) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'if-responsive-styles';
+    style.textContent = `
+      .if-float-button-container {
+        width: 600px;
+      }
+      @media (max-width: 767px) {
+        .if-float-button-container {
+          width: 300px;
+        }
+      }
+      .if-popup-container {
+        width: 600px;
+      }
+      @media (max-width: 767px) {
+        .if-popup-container {
+          width: 300px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /**
    * Checks if a popup should be shown based on cookie
    * @param popupId - Unique popup identifier
    * @returns True if popup should be shown, false otherwise
@@ -171,8 +203,6 @@ export class Embedder {
       return;
     }
 
-    const iframe = this.createIframe(config.id, '614px', '300px');
-    iframe.setAttribute('data-widget-id', config.id);
     containerElement.forEach((element) => {
       element.style.width = '100%';
       element.style.textAlign = 'center';
@@ -180,6 +210,9 @@ export class Embedder {
       element.style.display = 'flex';
       element.style.justifyContent = 'center';
       element.style.alignItems = 'center';
+
+      const iframe = this.createIframe(config.id, element);
+      iframe.setAttribute('data-widget-id', config.id);
       element.appendChild(iframe);
     });
   }
@@ -225,11 +258,14 @@ export class Embedder {
       button.style.transform = 'translateY(0)';
     });
 
+    this.injectResponsiveStyles();
+
     const iframeContainer = document.createElement('div');
+    iframeContainer.className = 'if-float-button-container';
     iframeContainer.style.position = 'fixed';
     iframeContainer.style.bottom = '90px';
     iframeContainer.style.right = '20px';
-    iframeContainer.style.setProperty('max-width', 'calc(100% - 40px)', 'important');
+    iframeContainer.style.maxWidth = 'calc(100% - 40px)';
     iframeContainer.style.zIndex = '10001';
     iframeContainer.style.display = 'none';
     iframeContainer.style.overflow = 'hidden';
@@ -237,7 +273,7 @@ export class Embedder {
     iframeContainer.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
     iframeContainer.setAttribute('data-widget-id', config.id);
 
-    const iframe = this.createIframe(config.id, '614px', '300px');
+    const iframe = this.createIframe(config.id, iframeContainer);
     iframeContainer.appendChild(iframe);
 
     document.addEventListener('click', (e) => {
@@ -296,9 +332,13 @@ export class Embedder {
       modalContent.style.maxWidth = '90vw';
       modalContent.style.maxHeight = '90vh';
 
+      this.injectResponsiveStyles();
+
       const iframeContainer = document.createElement('div');
+      iframeContainer.className = 'if-popup-container';
       iframeContainer.style.borderRadius = '24px';
       iframeContainer.style.overflow = 'hidden';
+      iframeContainer.style.maxWidth = 'calc(90vw - 24px)';
 
       const closeButton = document.createElement('button');
       closeButton.innerHTML = '&times;';
@@ -328,7 +368,7 @@ export class Embedder {
         closeButton.style.transform = 'scale(1)';
       });
 
-      const iframe = this.createIframe(config.id, '614px', '300px');
+      const iframe = this.createIframe(config.id, iframeContainer);
 
       iframeContainer.appendChild(iframe);
       modalContent.appendChild(iframeContainer);
@@ -365,27 +405,78 @@ export class Embedder {
   }
 
   /**
-   * Creates an iframe element with the specified dimensions and source URL
+   * Calculates responsive iframe dimensions based on parent container width
+   * @param parentElement - The parent element to measure (optional, defaults to window)
+   * @returns Object with width and height in pixels
+   * @private
+   */
+  private getResponsiveIframeDimensions(parentElement?: HTMLElement | null): {
+    width: string;
+    height: string;
+  } {
+    const BREAKPOINT = 576;
+    let parentWidth: number;
+
+    if (parentElement) {
+      parentWidth = parentElement.getBoundingClientRect().width;
+    } else {
+      parentWidth = window.innerWidth;
+    }
+
+    if (parentWidth <= BREAKPOINT) {
+      return { width: '300px', height: '500px' };
+    } else {
+      return { width: '600px', height: '300px' };
+    }
+  }
+
+  /**
+   * Updates iframe dimensions based on parent container width
+   * @param iframe - The iframe element to update
+   * @param parentElement - The parent element to measure (optional, defaults to window)
+   * @private
+   */
+  private updateIframeDimensions(
+    iframe: HTMLIFrameElement,
+    parentElement?: HTMLElement | null,
+  ): void {
+    const dimensions = this.getResponsiveIframeDimensions(parentElement);
+    iframe.style.width = dimensions.width;
+    iframe.style.height = dimensions.height;
+  }
+
+  /**
+   * Creates an iframe element with responsive dimensions based on parent container
    * @param ifId - The unique identifier for the interactive form
-   * @param width - The width of the iframe (CSS units supported)
-   * @param height - The height of the iframe (CSS units supported)
+   * @param parentElement - The parent element to measure for responsive sizing (optional)
    * @returns HTMLIFrameElement - The configured iframe element
    * @private
    */
-  private createIframe(ifId: string, width: string, height: string): HTMLIFrameElement {
+  private createIframe(ifId: string, parentElement?: HTMLElement | null): HTMLIFrameElement {
     const iframe = document.createElement('iframe');
     const baseUrl = import.meta.env['VITE_FORM_URL'] || 'https://if-form-staging.up.railway.app';
     iframe.src = `${baseUrl}/${ifId}`;
-    iframe.width = width;
-    iframe.height = height;
-    iframe.style.backgroundColor = COLORS.white;
-    // iframe.style.borderRadius = '24px';
-    // iframe.style.overflow = 'hidden';
+    iframe.style.overflow = 'hidden';
     iframe.style.maxWidth = '100%';
-    iframe.style.width = width;
-    iframe.style.height = height;
     iframe.style.border = 'none';
     iframe.style.display = 'block';
+
+    // Set initial dimensions
+    this.updateIframeDimensions(iframe, parentElement);
+
+    // Add resize listener for dynamic updates
+    if (parentElement) {
+      const resizeObserver = new ResizeObserver(() => {
+        this.updateIframeDimensions(iframe, parentElement);
+      });
+      resizeObserver.observe(parentElement);
+    } else {
+      const handleResize = () => {
+        this.updateIframeDimensions(iframe, parentElement);
+      };
+      window.addEventListener('resize', handleResize);
+    }
+
     return iframe;
   }
 
